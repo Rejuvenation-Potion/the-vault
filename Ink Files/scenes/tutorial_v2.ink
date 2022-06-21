@@ -368,7 +368,7 @@ The Cleric hurries toward the doors and begins pushing them open.
 For once, the Scholar does not argue. Instead, she hurries over the doors and begins pushing them open.
 {
     - job_105a.finish || job_105b.finish: It takes all of her might, but she manages to start moving them. Fortunately, the magic is dealt with and no further traps reveal themselves.
-    - else: As she pushes, several pools of blue-white energy coalesce on the surface of the door. A jet of white flame shoots straight out from each one, several of them burning the Scholar. She cries out in pain, but keeps pushing. After a few seconds the flames burn out. The Rogue is still standing, but looking quite injured and burned.
+    - else: As she pushes, several pools of blue-white energy coalesce on the surface of the door. A jet of white flame shoots straight out from each one, several of them burning the Scholar. She cries out in pain, but keeps pushing. After a few seconds the flames burn out. The Scholar is still standing, but looking quite injured and burned.
         ~ scholar_injured = true
 }
 ->finish
@@ -538,8 +538,17 @@ You've made it inside, but you are sure far more challenges await you within the
 ===results
 RESULTS: 
 
-{ job_105b.finish:  You trusted the Scholar to figure out a use for the magical trap.}
-{ job_105a.finish:  You disarmed the trap rather than allow the scholar to continue studying it.}
+VAR scholar_disarmed_trap = false
+
+
+{ job_105b.finish:  
+    You trusted the Scholar to figure out a use for the magical trap.
+    ~scholar_disarmed_trap = true
+}
+{ job_105a.finish:  
+    You disarmed the trap rather than allow the scholar to continue studying it.
+    ~scholar_disarmed_trap = false
+}
 { job_105a.rogue: You ordered the rogue to deal with the magic despite his wishes. }
 { not creatures_arrived && not job_101.fire:  You made it inside before any dangerous jungle creatures found you.}
 { creatures_arrived && not creatures_killed: You escaped the leopards in the nick of time. }
@@ -553,4 +562,8 @@ RESULTS:
 
 You and your companions made it into the vault.
 
-->END
+*[Next Scene]->trust_explanation
+//*[Next Scene]->antechamber
+
+
+
