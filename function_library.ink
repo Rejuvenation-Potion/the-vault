@@ -1,11 +1,14 @@
 /*
-THE VAULT Functional Draft
+THE VAULT Function Library
 Author: Lochlan Belford
 Date Started: 7/1/2022
-Date Finished:
+Date Finished: 7/1/2022
 Description: 
-- A fully fuctional draft of The Vault with all logic and branching implemented
-- All story text is placeholder but should convey all the same information the finished story needs to
+- Main function library for the narrative mechanics, including:
+-- Trust System
+-- Health System
+-- Availability System
+- Also includes test scene to test all functions
 */
 
 /*
@@ -16,8 +19,9 @@ ALL_CAPS = constants
 lower_snake_case = knots & stitches
 */
 
+/*
 ->test_scene
-
+*/
 
 /// GLOBALS, CONSTANTS, FLAGS, and STATES
 //TRUST SYSTEM
@@ -34,11 +38,11 @@ VAR scholarTrust = 3
 LIST healthStates = healthy, injured, unconscious, dead
 LIST busyStates = available, busy
 LIST presentStates = present, missing
-LIST companionNames = ranger, rogue, cleric, scholar
-VAR rangerState = (ranger, healthy, available, present)
-VAR rogueState = (rogue, injured, busy, present)
-VAR clericState = (cleric, unconscious, available, present)
-VAR scholarState = (scholar, dead, available, missing)
+LIST companionNames = Ranger, Rogue, Cleric, Scholar
+VAR rangerState = (Ranger, healthy, available, present)
+VAR rogueState = (Rogue, injured, busy, present)
+VAR clericState = (Cleric, unconscious, available, present)
+VAR scholarState = (Scholar, dead, available, missing)
 
 //KNOWLEDGE CHAINS
 
@@ -62,6 +66,14 @@ AlterTrust(ref trustLevel, delta)
     - trustLevel > MAX_TRUST:
         ~trustLevel = MAX_TRUST
 }
+/*
+SetTrust(ref trustLevel, level)
+- Sets trust for a particular character to given number (bound between 0-10)
+- This should mostly/only be used for save states
+*/
+=== function SetTrust(ref trustLevel, level)
+~ AlterTrust(trustLevel, -1000) //Bounds checked, so sets to 0
+~ AlterTrust(trustLevel, level)
 
 /*
 GetTrustThreshold(trustLevel)
@@ -94,18 +106,18 @@ helper function from the Ink guide for altering multi-state lists
 
 /*
 SaveCompanionState(tempState)
-takes a tem variabble companionState and saves it to the appropriate global state by switching on the character name field
+takes a temp variabble companionState and saves it to the appropriate global state by switching on the character name field
 I THINK this function is only needed in the test environment, we'll see
 */
 === function SaveCompanionState(tempState)
 {
-    - tempState ? (ranger):
+    - tempState ? (Ranger):
         ~ rangerState = tempState
-    - tempState ? (rogue):
+    - tempState ? (Rogue):
         ~ rogueState = tempState
-    - tempState ? (cleric):
+    - tempState ? (Cleric):
         ~ clericState = tempState
-    - tempState ? (scholar):
+    - tempState ? (Scholar):
         ~ scholarState = tempState
 }
 
@@ -293,16 +305,16 @@ Prints all relevant state info about a given companion
 ~ temp trust = 0
 //Get Name and trust
 {
-    - companionState ? (ranger):
+    - companionState ? (Ranger):
         ~trust = rangerTrust
         The Ranger <>
-    - companionState ? (rogue):
+    - companionState ? (Rogue):
         ~trust = rogueTrust
         The Rogue <>
-    - companionState ? (cleric):
+    - companionState ? (Cleric):
         ~trust = clericTrust
         The Cleric <>
-    - companionState ? (scholar):
+    - companionState ? (Scholar):
         ~trust = scholarTrust
         The Scholar <>
     - else:
@@ -413,49 +425,49 @@ Their trust level is <>
 
 === test_change_trust(companionState)
 {
-    - companionState ? (ranger): ->ran
-    - companionState ? (rogue): ->rog
-    - companionState ? (cleric): ->cler
-    - companionState ? (scholar): ->schol
+    - companionState ? (Ranger): ->ranger
+    - companionState ? (Rogue): ->rogue
+    - companionState ? (Cleric): ->cleric
+    - companionState ? (Scholar): ->scholar
 }
-=ran
+=ranger
 The Ranger's trust is at {rangerTrust}
 + [Add 2 Trust]
 ~ AlterTrust(rangerTrust, 2)
-->ran
+->ranger
 + [Lose 1 Trust]
 ~ AlterTrust(rangerTrust, -1)
-->ran
+->ranger
 + [Done]
 -> test_scene
-=rog
+=rogue
 The Rogue's trust is at {rogueTrust}
 + [Add 1 Trust]
 ~ AlterTrust(rogueTrust, 1)
-->rog
+->rogue
 + [Lose 1000 Trust]
 ~ AlterTrust(rogueTrust, -1000)
-->rog
+->rogue
 + [Done]
 -> test_scene
-=cler
+=cleric
 The Cleric's trust is at {clericTrust}
 + [Add 3 Trust]
 ~ AlterTrust(clericTrust, 3)
-->cler
+->cleric
 + [Lose 2 Trust]
 ~ AlterTrust(clericTrust, -2)
-->cler
+->cleric
 + [Done]
 -> test_scene
-=schol
+=scholar
 The Scholar's trust is at {scholarTrust}
 + [Add 7 Trust]
 ~ AlterTrust(scholarTrust, 7)
-->schol
+->scholar
 + [Lose 5 Trust]
 ~ AlterTrust(scholarTrust, -5)
-->schol
+->scholar
 + [Done]
 -> test_scene
 

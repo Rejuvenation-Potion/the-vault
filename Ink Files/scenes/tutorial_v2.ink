@@ -562,8 +562,8 @@ VAR scholar_disarmed_trap = false
 
 You and your companions made it into the vault.
 
-*[Next Scene]->trust_explanation
+//*[Next Scene]->trust_explanation
 //*[Next Scene]->antechamber
 
-
+->END
 
