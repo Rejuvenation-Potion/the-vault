@@ -12,13 +12,28 @@ Description:
 */
 
 
-=== function EnterSaveState(stateID)
+=== function EnterSaveState(stateID, debug)
 {stateID:
-    0: 
+    -0: 
         ~State0()
+    -201:
+        ~State201()
+    -202:
+        ~State202()
+    -203:
+        ~State203()
     - else:
         ~State0()
 }
+
+{
+    - debug:
+        ~PrintStatus(rangerState)
+        ~PrintStatus(rogueState)
+        ~PrintStatus(clericState)
+        ~PrintStatus(scholarState)
+}
+
 
 /*
 State0()
@@ -40,11 +55,6 @@ Everyone is healthy, present, and available
 ~ scholarState = (Scholar, healthy, present, available)
 ~ SetTrust(scholarTrust, STARTING_TRUST)
 
-//DEBUG
-~PrintStatus(rangerState)
-~PrintStatus(rogueState)
-~PrintStatus(clericState)
-~PrintStatus(scholarState)
 
 
 /*
@@ -125,6 +135,106 @@ Rogue Injured
 ~PrintStatus(rogueState)
 ~PrintStatus(clericState)
 ~PrintStatus(scholarState)
+
+
+/*
+State201() "Default"
+Possible State for beginning of Act 2
+Scholar Injured
+Scholar at 5 trust and Humbled
+Rogue at 4 Trust
+Cleric at 7 trust
+Ranger at 5 trust
+Just found out about brothers
+Just discovered ranger's past
+Player has been sympathetic toward Cleric
+*/
+=== function State201()
+//Ranger
+~ rangerState = (Ranger, healthy, present, available)
+~ SetTrust(rangerTrust, 5)
+//Rogue
+~ rogueState = (Rogue, healthy, present, available)
+~ SetTrust(rogueTrust, 4)
+//Cleric
+~ clericState = (Cleric, healthy, present, available)
+~ SetTrust(clericTrust, 7)
+//Scholar
+~ scholarState = (Scholar, injured, present, available)
+~ SetTrust(scholarTrust, 5)
+
+//Knowledge Chains and Variables
+~ SetStateTo(scholarEndings, humbled)
+~ reach(brothersKnowledge.KNOW_ARE_BROTHERS)
+~ reach(rangerGriefStages.CLOSED_OFF)
+~ playerSympatheticToCleric = true
+
+/*
+State202() "Ideal"
+Possible State for beginning of Act 2
+Everyone Healthy
+Scholar at 10 trust and HUMBLED
+Rogue at 6 Trust
+Cleric at 8 trust
+Ranger at 7 trust
+Know about brothers' conflict
+Ranger already opening up
+Player has been sympathetic toward Cleric
+*/
+=== function State202()
+//Ranger
+~ rangerState = (Ranger, healthy, present, available)
+~ SetTrust(rangerTrust, 7)
+//Rogue
+~ rogueState = (Rogue, healthy, present, available)
+~ SetTrust(rogueTrust, 6)
+//Cleric
+~ clericState = (Cleric, healthy, present, available)
+~ SetTrust(clericTrust, 8)
+//Scholar
+~ scholarState = (Scholar, healthy, present, available)
+~ SetTrust(scholarTrust, 10)
+
+//Knowledge Chains and Variables
+~ SetStateTo(scholarEndings, humbled)
+~ reach(brothersKnowledge.KNOW_ABOUT_CONFLICT)
+~ reach(rangerGriefStages.OPENING_UP)
+~ playerSympatheticToCleric = true
+
+
+/*
+State202() "Bad"
+Possible State for beginning of Act 2
+Scholar and Rogue Injured
+Scholar at 0 trust and PROUD
+Rogue at 2 Trust
+Cleric at 3 trust
+Ranger at 4 trust
+Just found out about brothers
+Just discovered ranger's past
+Player has been harsh toward Cleric
+*/
+=== function State203()
+//Ranger
+~ rangerState = (Ranger, healthy, present, available)
+~ SetTrust(rangerTrust, 4)
+//Rogue
+~ rogueState = (Rogue, injured, present, available)
+~ SetTrust(rogueTrust, 2)
+//Cleric
+~ clericState = (Cleric, healthy, present, available)
+~ SetTrust(clericTrust, 3)
+//Scholar
+~ scholarState = (Scholar, injured, present, available)
+~ SetTrust(scholarTrust, 0)
+
+//Knowledge Chains and Variables
+~ SetStateTo(scholarEndings, proud)
+~ reach(brothersKnowledge.KNOW_ARE_BROTHERS)
+~ reach(rangerGriefStages.CLOSED_OFF)
+~ playerSympatheticToCleric = false
+
+
 
 
 

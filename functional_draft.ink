@@ -11,9 +11,24 @@ Description:
 INCLUDE function_library.ink
 INCLUDE save_states.ink
 
-->SETUP_PROLOGUE
+///->SETUP_PROLOGUE
+->DEBUG_MENU
 
-/// SAVE STATES
+
+///Storywide Variables and Knowledge Chains
+//Scholar
+LIST scholarEndings = humbled, proud
+//Cleric and Rogue
+LIST brothersKnowledge = KNOW_ARE_BROTHERS, KNOW_ABOUT_CONFLICT, HEARD_ONE_SIDE, HEARD_BOTH_SIDES
+LIST rogueEndings = revenge, loner, belonging
+LIST clericEndings = lostFaith, statusQuo, enlightenment
+//Ranger
+LIST rangerGriefStages = CLOSED_OFF, OPENING_UP, PROCESSING_GRIEF, ACCEPTED_LOSS
+LIST rangerEndings = sacrifice, deathGuilt, deniedMartyr, brilliantPloy
+
+=== DEBUG_MENU
+->SKIP_TO_ACT_2
+
 
 /****** PROLOGUE: The Vault ******
 
@@ -23,7 +38,7 @@ LIST prologueEvents = creaturesArrived, creaturesScared, creaturesKilled, fireSe
 
 ///PROLOGUE Scenes
 ===SETUP_PROLOGUE
-~EnterSaveState(0)
+~EnterSaveState(0, true)
 ->intro_prologue
 
 ===intro_prologue
@@ -847,6 +862,7 @@ TODO: Job finish text
 
 *******/
 ///ACT 1 Variables
+VAR playerSympatheticToCleric = true
 ///ACT 1 Scenes
 ===SETUP_ACT1
 
@@ -884,6 +900,25 @@ There is one way out of this room, directly across from you.
 /****** ACT 2: The Brothers ******
 
 ******/
+///ACt 2 Variables
+=== SKIP_TO_ACT_2
+Pick a Save State to start Act 2 with:
++ [Default Save State]
+    {EnterSaveState(201, true)}
++ [Ideal Save State]
+    {EnterSaveState(202, true)}
++ [Bad Save State]
+    {EnterSaveState(203, true)}
+
+- ->intro_act2
+
+===SETUP_ACT2
+->intro_act2
+
+===intro_act2
+You just made it through
+{scholarEndings ? (humbled): }
+
 
 /****** ACT 3: The Ranger ******
 

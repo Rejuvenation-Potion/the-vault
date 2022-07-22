@@ -2,7 +2,7 @@
 THE VAULT Function Library
 Author: Lochlan Belford
 Date Started: 7/1/2022
-Date Finished: 7/1/2022
+Last Updated: 7/18/2022
 Description: 
 - Main function library for the narrative mechanics, including:
 -- Trust System
@@ -44,10 +44,50 @@ VAR rogueState = (Rogue, injured, busy, present)
 VAR clericState = (Cleric, unconscious, available, present)
 VAR scholarState = (Scholar, dead, available, missing)
 
-//KNOWLEDGE CHAINS
+
 
 
 ///FUNCTIONS
+//KNOWLEDGE CHAINS
+VAR AllTrueStates = ()
+/*
+reach(statesToSet)
+*/
+=== function reach(statesToSet)
+~temp x = pop(statesToSet)
+{
+    - not x:
+        ~ return false
+    - not reached(x):
+        ~ temp chain = LIST_ALL(x)
+        ~ temp statesGained = LIST_RANGE(chain, LIST_MIN(chain), x)
+        ~ AllTrueStates += statesGained
+        ~ reach(statesToSet)
+        ~ return true
+        
+    - else:
+        ~ return false || reach(statesToSet)
+}
+/*
+reached(x)
+*/
+=== function reached(x)
+~return AllTrueStates ? x
+
+/*
+between(x, y)
+*/
+=== function between(x, y)
+~ return AllTrueStates? x && not (AllTrueStates ^ y)
+
+/*
+pop(ref list)
+*/
+=== function pop(ref list)
+   ~ temp x = LIST_MIN(list) 
+   ~ list -= x 
+   ~ return x
+
 //TRUST SYSTEM
 /*
 AlterTrust(ref trustLevel, delta)
