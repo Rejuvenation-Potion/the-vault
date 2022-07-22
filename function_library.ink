@@ -48,42 +48,56 @@ VAR scholarState = (Scholar, dead, available, missing)
 
 
 ///FUNCTIONS
+//Ink Flow Control
+/*
+CameFrom(->x)
+returns true if x was the knot/stitch IMMEDIATELY PRIOR to
+the current one. Allows reaction to what player "just saw"
+*/
+=== function CameFrom(->x)
+    ~ return TURNS_SINCE(x) == 0
 //KNOWLEDGE CHAINS
 VAR AllTrueStates = ()
 /*
-reach(statesToSet)
+Reach(statesToSet)
+Function from Ink Guide
+Reaches a state in a knowledge chain, including all the states before it.
+Returns true if this is the FIRST time this state is reached (i.e. the player is learning new information)
 */
-=== function reach(statesToSet)
-~temp x = pop(statesToSet)
+=== function Reach(statesToSet)
+~temp x = Pop(statesToSet)
 {
     - not x:
         ~ return false
-    - not reached(x):
+    - not Reached(x):
         ~ temp chain = LIST_ALL(x)
         ~ temp statesGained = LIST_RANGE(chain, LIST_MIN(chain), x)
         ~ AllTrueStates += statesGained
-        ~ reach(statesToSet)
+        ~ Reach(statesToSet)
         ~ return true
         
     - else:
-        ~ return false || reach(statesToSet)
+        ~ return false || Reach(statesToSet)
 }
 /*
-reached(x)
+Reached(x)
+Checks if a particular state has been reached in a knowledge chain
 */
-=== function reached(x)
+=== function Reached(x)
 ~return AllTrueStates ? x
 
 /*
-between(x, y)
+Between(x, y)
+Checks if the player is between two given states in a knowledge chain
 */
-=== function between(x, y)
+=== function Between(x, y)
 ~ return AllTrueStates? x && not (AllTrueStates ^ y)
 
 /*
-pop(ref list)
+Pop(ref list)
+Helper function for Reach function, from ink guide
 */
-=== function pop(ref list)
+=== function Pop(ref list)
    ~ temp x = LIST_MIN(list) 
    ~ list -= x 
    ~ return x

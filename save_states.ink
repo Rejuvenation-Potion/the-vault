@@ -165,8 +165,8 @@ Player has been sympathetic toward Cleric
 
 //Knowledge Chains and Variables
 ~ SetStateTo(scholarEndings, humbled)
-~ reach(brothersKnowledge.KNOW_ARE_BROTHERS)
-~ reach(rangerGriefStages.CLOSED_OFF)
+~ Reach(brothersKnowledge.KNOW_ARE_BROTHERS)
+~ Reach(rangerGriefStages.CLOSED_OFF)
 ~ playerSympatheticToCleric = true
 
 /*
@@ -197,8 +197,8 @@ Player has been sympathetic toward Cleric
 
 //Knowledge Chains and Variables
 ~ SetStateTo(scholarEndings, humbled)
-~ reach(brothersKnowledge.KNOW_ABOUT_CONFLICT)
-~ reach(rangerGriefStages.OPENING_UP)
+~ Reach(brothersKnowledge.KNOW_ABOUT_CONFLICT)
+~ Reach(rangerGriefStages.OPENING_UP)
 ~ playerSympatheticToCleric = true
 
 
@@ -230,8 +230,8 @@ Player has been harsh toward Cleric
 
 //Knowledge Chains and Variables
 ~ SetStateTo(scholarEndings, proud)
-~ reach(brothersKnowledge.KNOW_ARE_BROTHERS)
-~ reach(rangerGriefStages.CLOSED_OFF)
+~ Reach(brothersKnowledge.KNOW_ARE_BROTHERS)
+~ Reach(rangerGriefStages.CLOSED_OFF)
 ~ playerSympatheticToCleric = false
 
 
