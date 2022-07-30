@@ -546,7 +546,7 @@ Now for the lock: who should climb up and open it?
     - "Got it." The Ranger makes her way over to the vine-covered wall. "Locks aren't my specialty, but I'll climb up and see what I can do."
     - In one swift motion, the Ranger grabs hold of the vines and hoists herself to the top of the wall. 
     - From her perch above the mechanism, The Ranger begins smashing the lock with the flat of her axe.
-    - With one last The Ranger bashes the lock free! 
+    - With one last strike The Ranger bashes the lock free! 
     ~ SetStateTo(rangerState, available)
     ->finish
 }
@@ -596,9 +596,9 @@ Job 021: OPEN Doors (for real this time)
 === job_021
 =intro
 {
-    - not job_010.finish: Now that they are unlocked, You could order someone to open those doors. The magic is still active though, and there's no telling what it could do.
-    - prologueEvents !? (trapDisarmed): Now that they are unlocked, You could order someone to open those doors. The magic is still active though, and would likely injure whoever you choose.
-    - else: Now that the doors are unlocked and the magic is no longer a threat, you just need someone to open them!
+    - prologueEvents ? (trapDisarmed): Now that the doors are unlocked and the magic is no longer a threat, you just need someone to open them!
+    - not job_011 && not job_012 && not job_010.finish: Now that they are unlocked, You could order someone to open those doors. The magic is still active though, and there's no telling what it could do.
+    -else: Now that they are unlocked, You could order someone to open those doors. The magic is still active though, and would likely injure whoever you choose.
 }
 ->assignment
 =assignment

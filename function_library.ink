@@ -310,23 +310,37 @@ Injure(companionState)
 Moves one state down the healthStatus states
 healthy -> injured -> unconscious -> dead
 Does nothing if companion is already at "dead"
+Also reduces that companion's trust by 1
 */
 
 
 === function Injure(ref companionState)
-Checking Health State and...
+//Checking Health State and...
 {
     - companionState ? (healthy):
-        Injuring
+        //Injuring
         ~ SetStateTo(companionState, healthStates.injured)
     - companionState ? (injured):
-        Passing Out
+        //Passing Out
         ~ SetStateTo(companionState, healthStates.unconscious)
     - companionState ? (unconscious):
-        Dying
+        //Dying
         ~ SetStateTo(companionState, healthStates.dead)
     - else:
         ~ return
+}
+//Get correct trust variable from state and reduce by 1
+{
+    - companionState ? (Ranger):
+        ~AlterTrust(rangerTrust, -1)
+    - companionState ? (Rogue):
+        ~AlterTrust(rogueTrust, -1)
+    - companionState ? (Cleric):
+        ~AlterTrust(clericTrust, -1)
+    - companionState ? (Scholar):
+        ~AlterTrust(scholarTrust, -1)
+    - else:
+        BUG: Accessing Unknown Companion
 }
 
 /*
