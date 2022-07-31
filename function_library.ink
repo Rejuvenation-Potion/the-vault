@@ -28,7 +28,7 @@ lower_snake_case = knots & stitches
 CONST MIN_TRUST = 0
 CONST MAX_TRUST = 10
 CONST STARTING_TRUST = 5
-LIST  trustThresholds = low = 0, med = 4, high = 8
+LIST  TRUST_THRESHOLDS = LOW = 0, MED = 4, HIGH = 7
 VAR rangerTrust = 8
 VAR rogueTrust = STARTING_TRUST
 VAR clericTrust = STARTING_TRUST
@@ -137,12 +137,12 @@ returns "high" "med" or "low" from that list
 */
 === function GetTrustThreshold(trustLevel)
 {
-    - trustLevel >= LIST_VALUE(trustThresholds.high):
-        ~ return trustThresholds.high
-    - trustLevel >= LIST_VALUE(trustThresholds.med):
-        ~ return trustThresholds.med
+    - trustLevel >= LIST_VALUE(TRUST_THRESHOLDS.HIGH):
+        ~ return TRUST_THRESHOLDS.HIGH
+    - trustLevel >= LIST_VALUE(TRUST_THRESHOLDS.MED):
+        ~ return TRUST_THRESHOLDS.MED
     - else:
-        ~ return trustThresholds.low
+        ~ return TRUST_THRESHOLDS.LOW
 }
 
 

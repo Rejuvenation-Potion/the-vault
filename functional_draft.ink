@@ -901,11 +901,20 @@ VAR playerSympatheticToCleric = true
 ->intro_act1
 
 ===intro_act1
-You made it inside.
-*You look back at your companions.-> companion_reactions
+You made it inside. You are in a small, dimly lit room with stone walls. Directly across from you is a dark passageway flanked by two imposing statues.
+However, before you can investigate them, you realize you have more pressing matters to attend to...
+* {IsInjured(rangerState) || IsInjured(rogueState) || IsInjured(clericState) || IsInjured(scholarState)}You look back at your injured companions[.]->companion_reactions
+* {GetTrustThreshold(scholarTrust) == trustThresholds.LOW}
++ {}
 
 ===companion_reactions
 Your companions react to the events outside.
+//Injuries
+{IsInjured(rangerState): }
+{IsInjured(rogueState): }
+{IsInjured(clericState): }
+{IsInjured(scholarState): }
+//Scholar Reaction
 {
     - prologueEvents ? (trustedScholar): Because you trusted the scholar to handle the trap, she is acting like your best friend now.
     - else: The scholar is in a terrible mood because you didn't trust her outside.
