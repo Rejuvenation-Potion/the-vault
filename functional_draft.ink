@@ -75,28 +75,28 @@ TODO: job assignment
     TODO: You assign the ranger.
     ~SetStateTo(rangerState, busy)
     TODO: Trust Changes
-    ~AlterTrust(rangerTrust, 0)
+    ~AlterTrust(Ranger, 0)
     ->ranger
     
 * {CanGiveJob(rogueState)} [Assign the Rogue.]
     TODO: You assign the rogue.
     ~SetStateTo(rogueState, busy)
     TODO: Trust Changes
-    ~AlterTrust(rogueTrust, 0)
+    ~AlterTrust(Rogue, 0)
     ->rogue
     
 * {CanGiveJob(clericState)} [Assign the Cleric.]
     TODO: You assign the cleric.
     ~SetStateTo(clericState, busy)
     TODO: Trust Changes
-    ~AlterTrust(clericTrust, 0)
+    ~AlterTrust(Cleric, 0)
     ->cleric
     
 * {CanGiveJob(scholarState)} [Assign the Scholar.]
     TODO: You assign the scholar.
     ~SetStateTo(scholarState, busy)
     TODO: Trust Changes
-    ~AlterTrust(scholarTrust, 0)
+    ~AlterTrust(Scholar, 0)
     ->scholar
 
 =ranger
@@ -338,22 +338,22 @@ What should be done about the unknown magic?
 * {CanGiveJob(clericState)} [Have The Cleric begin dispelling it.]
     "Let's not take any chances," you say and turn to the Cleric. "Dispel it."
     ~SetStateTo(clericState, busy)
-    ~AlterTrust(scholarTrust, -2)
-    ~AlterTrust(clericTrust, 1)
+    ~AlterTrust(Scholar, -2)
+    ~AlterTrust(Cleric, 1)
     ->job_011.cleric
 
 * {CanGiveJob(rangerState)} [The Ranger has good danger sense; tell her to investigate it]
     You decide the Ranger should be the one to investigate the unknown magic.
     ~SetStateTo(rangerState, busy)
-    ~AlterTrust(scholarTrust, -2)
+    ~AlterTrust(Scholar, -2)
     ->ranger
     
 * {CanGiveJob(rogueState)} [It's probably a trap; tell The Rogue to disarm it]
     "It is almost certainly a trap," you say. You turn to the Rogue. "And you are our trap expert; get in there and disarm it."
     "Literally what did I just say??" he exclaims. There is a pause, and then a sigh. "Look, I'll do it, but I won't forget this."
     ~SetStateTo(rogueState, busy)
-    ~AlterTrust(scholarTrust, -2)
-    ~AlterTrust(rogueTrust, -2)
+    ~AlterTrust(Scholar, -2)
+    ~AlterTrust(Rogue, -2)
     ->job_011.rogue
     
 =ranger
@@ -408,15 +408,15 @@ Now that you know more about the magic, who will deal with it?
 * {CanGiveJob(scholarState) && job_010.scholar}[Allow the Scholar to continue studying the magic.]
     "Keep at it," you tell the Scholar. "I trust you."
     ~SetStateTo(scholarState, busy)
-    ~AlterTrust(scholarTrust, 2)
+    ~AlterTrust(Scholar, 2)
     ->job_012.scholar
 * {CanGiveJob(rangerState)} [Assign the Ranger.]
     You turn to the Ranger.
     "Sounds like you already have a good idea how to disarm this thing" you tell the Ranger. "Go ahead and get started."
     The Ranger nods in response. "Good plan."
     ~SetStateTo(rangerState, busy)
-    ~AlterTrust(rangerTrust, 1)
-    ~AlterTrust(scholarTrust, -2)
+    ~AlterTrust(Ranger, 1)
+    ~AlterTrust(Scholar, -2)
     ->ranger
     
 * {CanGiveJob(rogueState)} [Assign the Rogue.]
@@ -424,15 +424,15 @@ Now that you know more about the magic, who will deal with it?
     The Rogue sighs dramatically, but moves to the door anyway.
     {not job_020.rogue: He mutters under his breath just loud enough for you to hear, "I would have rather dealt with the lock..."}
     ~SetStateTo(rogueState, busy)
-    ~AlterTrust(rogueTrust, -1)
-    ~AlterTrust(scholarTrust, -2)
+    ~AlterTrust(Rogue, -1)
+    ~AlterTrust(Scholar, -2)
     ->rogue
     
 * {CanGiveJob(clericState)} [Assign the Cleric.]
     You turn to the Cleric. "Go ahead and dispel it."
     ~SetStateTo(clericState, busy)
-    ~AlterTrust(clericTrust, 1)
-    ~AlterTrust(scholarTrust, -2)
+    ~AlterTrust(Cleric, 1)
+    ~AlterTrust(Scholar, -2)
     ->cleric
     
 
@@ -842,7 +842,7 @@ The party isn't unscathed, but the danger is dealt with for now.
 With one last push, the doors are finally open.
 {
     - prologueEvents !? (creaturesArrived) && prologueEvents !? (creaturesKilled) && prologueEvents !? (creaturesScared): Knowing there is still danger approaching from the forest, you hurridely usher everyone inside. Working together, you close the heavy doors behind you.
-    - prologueEvents ? (creaturesArrived) && prologueEvents !? (creaturesKilled) && prologueEvents !? (creaturesScared): "Inside, quickly!" you shout as the hungry leopards pin your group closer and closer to the wall. You dart inside one after another, and working together, <>
+    - prologueEvents ? (creaturesArrived) && prologueEvents !? (creaturesKilled) && prologueEvents !? (creaturesScared): "Inside, quickly!" you shout as the hungry leopards pin your group closer and closer to the wall. You dart inside one after another. <>
     { 
         - IsInjured(rangerState) && IsInjured(clericState): You attempt to close the doors before the beasts can follow you in. However, with the ranger and the cleric injued your group is not at full strength, and the leopards get one last swipe in--at you--before the doors close. You stumble back in the darkness cluthcing at your left leg, which is now bleeding where the leopard clawed you. Your companions immediately start to bandage you up. You'll live, but you'll also have trouble with that leg for a while.
             ~ player_injured = true
@@ -850,7 +850,7 @@ With one last push, the doors are finally open.
             ~ player_injured = true
         - IsInjured(clericState): You attempt to close the doors before the beasts can follow you in. However, with the cleric injued your group is not at full strength, and the leopards get one last swipe in--at you--before the doors close. You stumble back in the darkness cluthcing at your left leg, which is now bleeding where the leopard clawed you. Your companions immediately start to bandage you up. You'll live, but you'll also have trouble with that leg for a while.
             ~ player_injured = true
-        - else: "Inside, quickly!" you shout as the hungry leopards pin your group closer and closer to the wall. You dart inside one after another, and working together, you manage to slam the heavy doors shut just before the creatures can follow you in.
+        - else: Working together, you manage to slam the heavy doors shut just before the creatures can follow you in!
     }
     - prologueEvents ? (fireSet): The fire is now completely consuming the clearing, and you all rush inside to escape it. Shoving the doors closed with all your might, you manage to keep the fire outside.
     - else: With all outside dangers averted for now, your group unhurridely makes their way inside. Working together, you close the heavy doors behind you.
@@ -904,8 +904,8 @@ VAR playerSympatheticToCleric = true
 You made it inside. You are in a small, dimly lit room with stone walls. Directly across from you is a dark passageway flanked by two imposing statues.
 However, before you can investigate them, you realize you have more pressing matters to attend to...
 * {IsInjured(rangerState) || IsInjured(rogueState) || IsInjured(clericState) || IsInjured(scholarState)}You look back at your injured companions[.]->companion_reactions
-* {GetTrustThreshold(scholarTrust) == trustThresholds.LOW}
-+ {}
+//* {GetTrustThreshold(scholarTrust) == trustThresholds.LOW}
+//+ {}
 
 ===companion_reactions
 Your companions react to the events outside.

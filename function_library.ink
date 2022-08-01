@@ -104,13 +104,55 @@ Helper function for Reach function, from ink guide
 
 //TRUST SYSTEM
 /*
-AlterTrust(ref trustLevel, delta)
+AlterTrust(CompanionName, delta)
+- Takes in a companion name (from the list) and an amount to change trust by
+- Changes trust value using private function _alterTrust
+- Prints a message like "The Scholar disapproves slightly" based on value
+- (positive = "approves", negative = "disapproves")
+- (1 = "slightly", 3+ = "greatly")
+*/
+=== function AlterTrust(CompanionName, delta)
+//Begin approval message
+[<>
+//Convert CompanionName to companionID
+~temp companionID = LIST_VALUE(CompanionName)
+//switch on CompanionName, print name
+{companionID:
+    -LIST_VALUE(Ranger):
+        ~_alterTrust(rangerTrust, delta)
+        The Ranger <>
+    -LIST_VALUE(Rogue):
+        ~_alterTrust(rogueTrust, delta)
+        The Rogue <>
+    -LIST_VALUE(Cleric):
+        ~_alterTrust(clericTrust, delta)
+        The Cleric <>
+    -LIST_VALUE(Scholar):
+        ~_alterTrust(scholarTrust, delta)
+        The Scholar <>
+    -else:
+        BUG: Changing trust of unknown companion!]
+        ~return
+}
+//Complete message based on delta value
+{
+    - delta <= -3: greatly disapproves.]
+    - delta <= -2: disapproves.]
+    - delta <= -1: disapproves slightly.]
+    - delta >= 3: greatly approves!]
+    - delta >= 2: approves.]
+    - delta >= 1: approves slightly.]
+}
+
+/*
+_alterTrust(ref trustLevel, delta)
 - takes in a reference to once of the "trust level" global variables
 - adds the provided delta value to the trust level
 - checks if level has gone outside defined CONST max and mins for trust
 - if it has, enforces bounds
 */
-=== function AlterTrust(ref trustLevel, delta)
+=== function _alterTrust(ref trustLevel, delta)
+
 //Change trust level
 ~ trustLevel += delta
 //Bounds checking
@@ -126,8 +168,8 @@ SetTrust(ref trustLevel, level)
 - This should mostly/only be used for save states
 */
 === function SetTrust(ref trustLevel, level)
-~ AlterTrust(trustLevel, -1000) //Bounds checked, so sets to 0
-~ AlterTrust(trustLevel, level)
+~ _alterTrust(trustLevel, -1000) //Bounds checked, so sets to 0
+~ _alterTrust(trustLevel, level)
 
 /*
 GetTrustThreshold(trustLevel)
@@ -423,11 +465,11 @@ and <>
 //Get Trust
 Their trust level is <>
 {
-    - GetTrustThreshold(trust) == high:
+    - GetTrustThreshold(trust) == HIGH:
     HIGH.
-    - GetTrustThreshold(trust) == med:
+    - GetTrustThreshold(trust) == MED:
     MEDIUM.
-    - GetTrustThreshold(trust) == low:
+    - GetTrustThreshold(trust) == LOW:
     LOW.
     - else:
     UNKNOWN (BUG!).
