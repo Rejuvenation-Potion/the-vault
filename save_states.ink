@@ -16,6 +16,14 @@ Description:
 {stateID:
     -0: 
         ~State0()
+    -101:
+        ~State101()
+    -111:
+        ~State111()
+    -121:
+        ~State121()
+    -131:
+        ~State131()
     -201:
         ~State201()
     -202:
@@ -28,10 +36,12 @@ Description:
 
 {
     - debug:
+    [DEBUG:
         ~PrintStatus(rangerState)
         ~PrintStatus(rogueState)
         ~PrintStatus(clericState)
         ~PrintStatus(scholarState)
+    DEBUG END]
 }
 
 
@@ -59,6 +69,7 @@ Everyone is healthy, present, and available
 
 /*
 State101()
+"Ideal"
 Possible State for beginning of Act 1
 Scholar trust up 
 No Injuries
@@ -77,17 +88,18 @@ No Injuries
 ~ scholarState = (Scholar, healthy, present, available)
 ~ SetTrust(scholarTrust, 7)
 
-//DEBUG
-~PrintStatus(rangerState)
-~PrintStatus(rogueState)
-~PrintStatus(clericState)
-~PrintStatus(scholarState)
+//prologue events
+~ prologueEvents += trustedScholar
+~ prologueEvents += trapDisarmed
+~ prologueEvents += creaturesScared
+
 
 /*
 State111()
+"Default"
 Possible State for beginning of Act 1
-Scholar trust down 
-Cleric Injured
+Scholar not trusted
+Cleric Disarmed (trust up 1)
 */
 === function State111()
 //Ranger
@@ -97,44 +109,73 @@ Cleric Injured
 ~ rogueState = (Rogue, healthy, present, available)
 ~ SetTrust(rogueTrust, STARTING_TRUST)
 //Cleric
-~ clericState = (Cleric, injured, present, available)
-~ SetTrust(clericTrust, STARTING_TRUST)
+~ clericState = (Cleric, healthy, present, available)
+~ SetTrust(clericTrust, 6)
 //Scholar
 ~ scholarState = (Scholar, healthy, present, available)
-~ SetTrust(scholarTrust,3)
+~ SetTrust(scholarTrust, 3)
 
-//DEBUG
-~PrintStatus(rangerState)
-~PrintStatus(rogueState)
-~PrintStatus(clericState)
-~PrintStatus(scholarState)
+//prologue events
+~ prologueEvents += trapDisarmed
+~ prologueEvents += creaturesArrived
+
+
 
 
 /*
-State103()
+State121()
 Possible State for beginning of Act 1
+"Bad"
 Scholar trust down 
-Rogue Injured
+Rogue trust down
+Ranger Injured (trust - 1)
 */
-=== function State103()
+=== function State121()
 //Ranger
-~ rangerState = (Ranger, healthy, present, available)
-~ SetTrust(rangerTrust, STARTING_TRUST)
+~ rangerState = (Ranger, injured, present, available)
+~ SetTrust(rangerTrust, 4)
 //Rogue
-~ rogueState = (Rogue, injured, present, available)
-~ SetTrust(rogueTrust, STARTING_TRUST)
+~ rogueState = (Rogue, healthy, present, available)
+~ SetTrust(rogueTrust, 3)
 //Cleric
 ~ clericState = (Cleric, healthy, present, available)
-~ SetTrust(clericTrust, STARTING_TRUST)
+~ SetTrust(clericTrust, 5)
 //Scholar
 ~ scholarState = (Scholar, healthy, present, available)
-~ SetTrust(scholarTrust,3)
+~ SetTrust(scholarTrust, 3)
 
-//DEBUG
-~PrintStatus(rangerState)
-~PrintStatus(rogueState)
-~PrintStatus(clericState)
-~PrintStatus(scholarState)
+//prologue events
+~ prologueEvents += trapDisarmed
+~ prologueEvents += creaturesArrived
+~ prologueEvents += creaturesKilled
+
+/*
+State131()
+Possible State for beginning of Act 1
+"Worst"
+Scholar trust down 
+Rogue trust down
+Ranger Injured (trust - 1)
+Cleric Injured (trust - 1)
+*/
+=== function State131()
+//Ranger
+~ rangerState = (Ranger, injured, present, available)
+~ SetTrust(rangerTrust, 4)
+//Rogue
+~ rogueState = (Rogue, healthy, present, available)
+~ SetTrust(rogueTrust, 5)
+//Cleric
+~ clericState = (Cleric, injured, present, available)
+~ SetTrust(clericTrust, 4)
+//Scholar
+~ scholarState = (Scholar, healthy, present, available)
+~ SetTrust(scholarTrust, 3)
+
+//prologue events
+~ prologueEvents += creaturesArrived
+~ prologueEvents += creaturesKilled
+~ prologueEvents += fireSet
 
 
 /*

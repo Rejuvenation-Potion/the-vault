@@ -11,8 +11,9 @@ Description:
 INCLUDE function_library.ink
 INCLUDE save_states.ink
 
-->SETUP_PROLOGUE
-///->DEBUG_MENU
+
+->DEBUG_MENU
+///->SETUP_PROLOGUE
 
 /*** JOB PATTERN ***
 A job is the main unit of gameplay in the puzzle sections of the game.
@@ -158,7 +159,9 @@ LIST rangerGriefStages = CLOSED_OFF, OPENING_UP, PROCESSING_GRIEF, ACCEPTED_LOSS
 LIST rangerEndings = sacrifice, deathGuilt, deniedMartyr, brilliantPloy
 
 === DEBUG_MENU
-->SKIP_TO_ACT_2
++ [Start Game.]->SETUP_PROLOGUE
++ [Skip to Act 1.] ->SKIP_TO_ACT_1
++ [Skip to Act 2.] ->SKIP_TO_ACT_2
 
 
 /****** PROLOGUE: The Vault ******
@@ -496,6 +499,7 @@ Job 012: REPURPOSE Magic trap (Scholar only)
 
 =finish
 ~prologueEvents += trapDisarmed
+~prologueEvents += trustedScholar
 Moving quickly, the Scholar knocks several times on the doors in quick succession, in a different spot each time. Each knock leads to more magical lines rippling accross the surface of the door. They seem to be coalescing into pools of bright energy scattered across the stone wall. With a last knock, the Scholar suddenly twirls out of the way. A beam of white fire shoots out from each of the magical pools, arcing toward where the Scholar was just standing. But her dodge was successful, and the moonfire instead arcs out harmlessly into the jungle.
 {
     - prologueEvents !? (creaturesArrived): To your pleasant surprise, this burst of firey magic also seems to scare the creatures that have been meancing you from the jungle. You hear two terrified yelps in the darkness, and then the sounds of creatures dashing away through the underbrush, the sound fading as they get further and further away. The Scholar turned the trap to your advantage after all!
@@ -675,7 +679,7 @@ Job 030: DELAY Animals
 }
 =intro
 {once:
-    - Your companions begin carrying out your orders. You notice that the sky has gotten much darker since you arrived. The sun must be bellow the horizon line by now, if you could even see it through the thick jungle around you. You get the vague sensation that something is watching you, waiting for night to fall. ->->
+    - Your companions begin carrying out your orders. You notice that the sky has gotten much darker since you arrived. The sun must be below the horizon line by now, if you could even see it through the thick jungle around you. You get the vague sensation that something is watching you, waiting for night to fall. ->->
     - By now the darkness of the forest has grown more oppressive. You start to hear growls from the forest all around you, and they seem to be getting closer.
 }
 
@@ -893,6 +897,18 @@ You and your companions made it into the vault.
 /****** ACT 1: The Scholar ******
 
 *******/
+=== SKIP_TO_ACT_1
+Pick a Save State to start Act 1 with:
++ [Default Save State]
+    {EnterSaveState(111, true)}
++ [Ideal Save State]
+    {EnterSaveState(101, true)}
++ [Bad Save State (1 Injury)]
+    {EnterSaveState(121, true)}
++ [Worst Save State (2 Injruies)]
+    {EnterSaveState(131, true)}
+
+- ->SETUP_ACT1
 ///ACT 1 Variables
 VAR playerSympatheticToCleric = true
 ///ACT 1 Scenes
@@ -902,34 +918,175 @@ VAR playerSympatheticToCleric = true
 
 ===intro_act1
 You made it inside. You are in a small, dimly lit room with stone walls. Directly across from you is a dark passageway flanked by two imposing statues.
-However, before you can investigate them, you realize you have more pressing matters to attend to...
-* {IsInjured(rangerState) || IsInjured(rogueState) || IsInjured(clericState) || IsInjured(scholarState)}You look back at your injured companions[.]->companion_reactions
-//* {GetTrustThreshold(scholarTrust) == trustThresholds.LOW}
-//+ {}
+->companion_reactions
+
 
 ===companion_reactions
-Your companions react to the events outside.
+* However, [before investigating further...] before  <>
+// check injuries first
+{InjuryCount() > 0:
+    investigating further, you look back at your injured <>
+    {
+        - InjuryCount() > 1: companions <>
+        - else: companion <>
+    }
+    and realize you have more pressing concerns.
+    ->injuries
+}
+//check for scholar being mad
+{prologueEvents !? (trustedScholar):
+    you have a chance to investigate, the Scholar grabs you by the shoulder and whirls you around. She looks furious.
+    ->scholar_argument
+}
+//check for fire argument
+{prologueEvents ? (fireSet):
+    you have a chance to investigate, you hear an argument break out behind you.
+    ->fire_argument
+}
+
+
+//If made it this far, ranger complements you instead
+you have a chance to investigate, one of your companions claps you on the back. It is the Ranger, and as you turn toward her you notice she is smiling.
+"Just wanted to say, good work so far." She continues, "A lot could have gone wrong out there, but you made sure nothing did. In fact things went about as well as they possibly could have."
+** "Thank you!"
+    ~AlterTrust(Ranger, 2)
+    She nods. "Of course it will likely get more difficult from here. But we're off to a good start."
+** "Keep your guard up anyway[."]," you tell her. "There's a lot more that could still go wrong."
+    ~AlterTrust(Ranger, 2)
+    "Of course" she replies matter-of-factly. "I always do." 
+** "I just hope our luck holds[."]," you reply.
+    ~AlterTrust(Ranger, 1)
+    "Oh luck had nothing to do with it," the Ranger says matter-of-factly. "Don't discount your own decision-making."
+    
+- "Keep it up, and we'll have claimed the artifact in no time." And with a curt nod, the Ranger goes back to check on the others. She seems to be viewing you with a newfound respect!
+->scholar_approach
+
+=injuries
 //Injuries
-{IsInjured(rangerState): }
-{IsInjured(rogueState): }
-{IsInjured(clericState): }
-{IsInjured(scholarState): }
-//Scholar Reaction
+{IsInjured(rangerState): The Ranger is injured, clutching at her side. She says she'll walk it off, but you can tell she's hurting.}
+{IsInjured(rogueState): The Rogue is injured, and is making sure everyone knows it. He is definitely hurt, but not quite as badly as he is making it seem.}
+{IsInjured(clericState): The Cleric is injured, and you see him grimace as he searches his pack for the healing kit.}
+{IsInjured(scholarState): You hear a cry of pain and a clatter of books, and then you see the Scholar clutching at her injured arm. She curses and then carefully bends down to lift her books with her good arm this time.}
+
+The Cleric approaches you with the healing kit. He says, "I have healing magic as well of course," he says somewhat reassuringly. " But even so, it is always b-best to start by tending to their wounds conventionally."
+->healing_decision
+=healing_decision
+* "Go ahead."
+    The Cleric nods and sets to work binding wounds.
+* "Let me help[."]," you say, grabbing some bandages from the kit.
+    ~AlterTrust(Cleric, 2)
+    "Oh, Excellent!" The Cleric's face brightens, and you both set to work. 
+You join the Cleric in tending wounds, and your injured companions look grateful.
+    {IsInjured(rangerState): 
+        ~AlterTrust(Ranger, 1)
+    }
+    {IsInjured(rogueState):
+        ~AlterTrust(Ranger, 1)
+    }
+    {IsInjured(scholarState): 
+        ~AlterTrust(Scholar, 1)
+    }
+* ["Healing magic?"] "How does your healing magic work exactly?" you ask.
+    "I-I will explain once this is done," the Cleric says apologetically. "Bandages first." ->healing_decision
+    
+- Once finished, everyone seems to be in slightly brigther spirits than they were.
+    
+//check for scholar being mad
 {
-    - prologueEvents ? (trustedScholar): Because you trusted the scholar to handle the trap, she is acting like your best friend now.
-    - else: The scholar is in a terrible mood because you didn't trust her outside.
+- prologueEvents !? (trustedScholar):
+    Everyone except the Scholar that is, <>
+    {
+        -IsInjured(scholarState): who seems to have remembered that she is quite angry with you now that her pain is lessened. <>
+        - else: who seems to have been waiting for an opportune moment to confront you. <>
+    }
+    She grabs you by the shoulder and whirls you around. She looks furious.
+    ->scholar_argument
+//check for fire argument
+- prologueEvents ? (fireSet):
+    But seemingly as soon as you've turned your back, you hear voices arguing. You turn back around to see the Ranger confronting the Rogue.
+    ->fire_argument
+-else: ->scholar_approach
+}
+
+=scholar_argument
+She points her finger right in your face. "I demand to know if you will actually allow me to do the job I am here to do!"
+* "Of course I will[."]," you reply, which seems to cool her down a bit.
+    ~AlterTrust(Scholar, 1)
+    "I hope that is true," she says, no longer shouting. "Claiming the artifact at the center of this vault is going to mean navigating quite a bit more magic than what we encountered outside. And quite frankly, I am the only one here with the intelligence to see us through."
+* "Watch your tone."
+    ~AlterTrust(Scholar, -2)
+    Her face grows red. "I am surrounded by imbeciles!" she shouts. "I am the only hope any of you have of reaching the center of this vault and claiming the artifact!"
+* "Is this about the magic outside?"
+    She seems to get even angrier. "What ELSE would it be about?"
+    She collects herself after this outburst. Then, with icy calm, "I am here to study magic. Without my knowledge we have no hope of claiming the artifact at the center of this vault. Yet at the first opportunity you undermine me. So I ask again, will you let me do my job the next time we encounter magic?"
+    * * "Yes[."]," you assure her. "You have my word."
+        ~AlterTrust(Scholar, 1)
+        She nods. "See that you do."
+    * * "Only if we're sure its safe."
+        ~AlterTrust(Scholar, -1)
+        "New discoveries cannot be made without risk. Remember that."
+    * * "Don't question me."
+        ~AlterTrust(Scholar, -2)
+        She laughs bitterly. "It is amusing you think you can tell me what to do."
+
+    - - 
+- And with that she walks briskly past you toward the statues.//GATHER POINT- check for fire argument
+    {
+        -prologueEvents ? (fireSet):
+        Just then, you hear the Ranger and the Rogue explode into an argument of their own.
+        *[Continue.]->fire_argument
+        -else: ->scholar_approach
+    }
+
+=fire_argument
+TODO: Fire Argument
+The Ranger and the Rogue are arguing about the fire the Rogue set outside. 
+* [Listen in.]
+    The Ranger is angry that the Rogue was so reckless, rightly pointing out that the fire immediately spun out of control and is still burning wildly on the other side of the door.
+    
+    The Rogue is arguing that he's the one who took the initiative to save the group from the leopards.
+    "Anyone who thinks they can do better is welcome to try!" he shouts back.
+    * * [Side with the Ranger.] You step beside the Ranger and make it clear you agree. The Rogue was too reckless.
+        ~ AlterTrust(Ranger, 2)
+        ~ AlterTrust(Rogue, -2)
+        "I was following your orders!" the rogue fires back at you, but then he seems to concede defeat. He steps away, muttering "I knew this job was a bad idea."
+    * * [Side with the Rogue.] You step beside the Rogue and come to his defense.
+        ~AlterTrust(Ranger, -2)
+        ~AlterTrust(Rogue, 2)
+        The Ranger makes it clear she is now much more worried about your decision making, and the group's chances of success.
+    * * [Try to mediate.] You step between them, creating a moment of calm. You remind them that everyone is on the same side here, and you all need to work together to get the artifact you are searching for.
+        ~AlterTrust(Ranger, 1)
+        ~AlterTrust(Rogue, 1)
+    - - ->scholar_approach
+* [Ignore them.]
+    You decide to let them handle their business themselves, and go back to inspecting the room.
+    -> scholar_approach
+
+
+
+=scholar_approach
+{
+    //Happy
+    - CameFrom(->injuries):
+    //Angry
+    - CameFrom(->scholar_argument):
+    - CameFrom(->fire_argument):
 }
 ->antechamber
 
 ===antechamber
+* [Continue.]->END
 You are in the antechamber of the vault.
 There is one way out of this room, directly across from you.
+->END
+
+===rest_act1
 ->END
 
 ===conversations_act1
 ->END
 
-===rest_act1
+===night_1
 ->END
 
 ===path_forward
@@ -957,7 +1114,7 @@ Pick a Save State to start Act 2 with:
 ->intro_act2
 
 ===intro_act2
-You just made it through
+//You just made it through
 {scholarEndings ? (humbled): }
 ->END
 

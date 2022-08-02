@@ -475,6 +475,28 @@ Their trust level is <>
     UNKNOWN (BUG!).
 }
 
+/*
+InjuryCount()
+- Checks each companion for "injured" status and increments count if true
+- returns total number of injured companions 
+*/
+=== function InjuryCount()
+~ temp count = 0
+{IsInjured(rangerState): 
+    ~count++
+}
+{IsInjured(rogueState): 
+    ~count++
+}
+{IsInjured(clericState): 
+    ~count++
+}
+{IsInjured(scholarState): 
+    ~count++
+}
+
+~ return count
+
 
 ===test_scene
 {PrintStatus(rangerState)}
