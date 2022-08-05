@@ -911,6 +911,8 @@ Pick a Save State to start Act 1 with:
 - ->SETUP_ACT1
 ///ACT 1 Variables
 VAR playerSympatheticToCleric = true
+VAR tookTilesEarly = false
+VAR tilesEmpowered = false
 ///ACT 1 Scenes
 ===SETUP_ACT1
 
@@ -959,7 +961,7 @@ you have a chance to investigate, one of your companions claps you on the back. 
     "Oh luck had nothing to do with it," the Ranger says matter-of-factly. "Don't discount your own decision-making."
     
 - "Keep it up, and we'll have claimed the artifact in no time." And with a curt nod, the Ranger goes back to check on the others. She seems to be viewing you with a newfound respect!
-->scholar_approach
+->antechamber
 
 =injuries
 //Injuries
@@ -1005,7 +1007,7 @@ You join the Cleric in tending wounds, and your injured companions look grateful
 - prologueEvents ? (fireSet):
     But seemingly as soon as you've turned your back, you hear voices arguing. You turn back around to see the Ranger confronting the Rogue.
     ->fire_argument
--else: ->scholar_approach
+-else: ->antechamber
 }
 
 =scholar_argument
@@ -1035,7 +1037,7 @@ She points her finger right in your face. "I demand to know if you will actually
         -prologueEvents ? (fireSet):
         Just then, you hear the Ranger and the Rogue explode into an argument of their own.
         *[Continue.]->fire_argument
-        -else: ->scholar_approach
+        -else: ->antechamber
     }
 
 =fire_argument
@@ -1057,27 +1059,82 @@ The Ranger and the Rogue are arguing about the fire the Rogue set outside.
     * * [Try to mediate.] You step between them, creating a moment of calm. You remind them that everyone is on the same side here, and you all need to work together to get the artifact you are searching for.
         ~AlterTrust(Ranger, 1)
         ~AlterTrust(Rogue, 1)
-    - - ->scholar_approach
+    - - ->antechamber
 * [Ignore them.]
     You decide to let them handle their business themselves, and go back to inspecting the room.
-    -> scholar_approach
+    -> antechamber
 
 
 
 =scholar_approach
-{
-    //Happy
-    - CameFrom(->injuries):
-    //Angry
-    - CameFrom(->scholar_argument):
-    - CameFrom(->fire_argument):
-}
+
 ->antechamber
 
 ===antechamber
-* [Continue.]->END
-You are in the antechamber of the vault.
-There is one way out of this room, directly across from you.
+* [Continue.]
+With any distractions handled for the moment, you take a closer look around.
+You are in a 10-foot square room with walls of cool blue stone. The ceiling, about 20 feet above you, is a metal grate which lets in the fading grey light from the sky above.
+The rest of the vault--and hopefully, the artifact you have been sent to find--lie somewhere through the dark passageway cut into the wall across from you.
+**[Continue.]->dont_touch
+=dont_touch
+//Scholar approaches statues
+You turn your attention from that passageway to the the statues that stand on either side of it, and you notice that the scholar has already begun to examine them closely. She is alternating between a sketchbook and a notebook, drawing the statues from all angles and jotting down notes. She seems positively abuzz with excitement.
+{prologueEvents !? (trustedScholar): Fortunately, in the excitement, she seems to have forgotten her anger for now.}
+The Rogue walks up to join her, and they discuss the statues. In particular they are both curious about the large metal bowls being held in the outstretched arms of each statue. The Scholar thinks they might be braziers of some kind, while the Rogue wonders if they hold treasure.
+However, the statues are holding the bowls about 7 feet off the ground, too high to be able to look inside them. The Scholar and the Rogue make a plan to climb the statues to get a better look, and the Rogue gets into position to boost the Scholar up.
+Seeing this, you say...
+* "You two, leave those statues alone."
+    ~AlterTrust(Scholar, -2)
+    ~AlterTrust(Rogue, -1)
+    {
+        - prologueEvents ? (trustedScholar): The Scholar seems surprised at you, but <>
+        - else: The Scholar scoffs. "Why did I expect anything different from you." But <>
+    }
+    she listens to you and goes back to taking notes and observing.
+    The Rogue says, "Well I guess they could be trapped anyway, better safe than sorry," but you can tell he is disappointed as well.
+* "Go ahead."
+    ~AlterTrust(Scholar, 1)
+    ~AlterTrust(Rogue, 1)
+    The Rogue boosts the Scholar up onto the first statue, and then deftly climbs up the second one on his own. 
+    The Scholar finds a perch on the shoulder of her statue, and peers down into the bowl it is holding. She excalims, "Now this is interesting!"
+    "The inside of these bowls is mirrored," she continues. " It appears they are designed to reflect moonlight when it enters the room through the skylight."
+    The Rogue chimes in from his statue. "There's some shiny things scattered at the bottom of this bowl, what about yours?"
+    "Oh I see," the Scholar says. "Let me work it out
+    TODO:
+* "Let me join you."
+    ~AlterTrust(Scholar, 2)
+    ~AlterTrust(Rogue, 2)
+    {
+        - prologueEvents ? (trustedScholar): "Of course!" the Scholar beams at you. "Here, I'll help you up first."
+        - else: "Oh really?" the Scholar replies with some doubt. She turns to the Rogue and tells him, "why don't we let our brilliant leader go first then?"
+    }
+    The Rogue and the Scholar move next to the first statue, and lift you up high enough that you can grab onto its arm. As you pull yourself up into a sitting position, your two companions make their way up the other statue.
+    From your new vantage point you can see that the interior surface of the bowl is lined with metal. Upon closer inspection, you realize it is polished enough to be a mirror. In fact even though the light is dim, you can see a warped reflection of the skylight above. The bowl is empty except for a few rectangular objects strewn across the bottom. They appear to be stone tiles of some kind.
+    "Aha!" you hear the Scholar call from her perch on the other statue. "Now this is interesting."
+    She turns to you. "Tell me, what do you think the purpose of these bowls is?"
+    * * "They are braziers, to light the room."
+        The Scholar shakes her head. "Not quite. They aren't for producing light, they are for collecting light."
+    * * "They collect water, from the open roof."
+        "Not quite. They don't collect water, they collect light." 
+    * * "They reflect light from above."
+        ~AlterTrust(Scholar, 2)
+        "Correct!" She says, impressed.
+    * * "Why don't you just tell me?"
+        {
+            -prologueEvents ? (trustedScholar): 
+                ~AlterTrust(Scholar, 1)
+                "Oh you're no fun," she teases. <>
+            -else: 
+                ~AlterTrust(Scholar, -1)
+                "Typical," she sighs. <>
+        }
+        "Well, they reflect light, which is why this room has a skylight."
+    - - She continues. "Specifically, they reflect moonlight."
+    TODO:
+    
+- * [Continue.]->our_purpose
+
+=our_purpose
 ->END
 
 ===rest_act1
