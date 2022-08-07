@@ -889,9 +889,6 @@ VAR scholar_disarmed_trap = false
 
 You and your companions made it into the vault.
 
-//*[Next Scene]->trust_explanation
-//*[Next Scene]->antechamber
-
 *[Next Scene.]->SETUP_ACT1
 
 /****** ACT 1: The Scholar ******
@@ -911,8 +908,7 @@ Pick a Save State to start Act 1 with:
 - ->SETUP_ACT1
 ///ACT 1 Variables
 VAR playerSympatheticToCleric = true
-VAR tookTilesEarly = false
-VAR tilesEmpowered = false
+LIST act1Events = oneBlankTile, allBlankTiles, tilesEmpowered, tookEmpoweredTiles
 ///ACT 1 Scenes
 ===SETUP_ACT1
 
@@ -1075,8 +1071,10 @@ The Ranger and the Rogue are arguing about the fire the Rogue set outside.
 With any distractions handled for the moment, you take a closer look around.
 You are in a 10-foot square room with walls of cool blue stone. The ceiling, about 20 feet above you, is a metal grate which lets in the fading grey light from the sky above.
 The rest of the vault--and hopefully, the artifact you have been sent to find--lie somewhere through the dark passageway cut into the wall across from you.
-**[Continue.]->dont_touch
-=dont_touch
+**[Continue.]->statues
+
+===statues
+TODO: Hint about Rogue backstory?
 //Scholar approaches statues
 You turn your attention from that passageway to the the statues that stand on either side of it, and you notice that the scholar has already begun to examine them closely. She is alternating between a sketchbook and a notebook, drawing the statues from all angles and jotting down notes. She seems positively abuzz with excitement.
 {prologueEvents !? (trustedScholar): Fortunately, in the excitement, she seems to have forgotten her anger for now.}
@@ -1088,19 +1086,20 @@ Seeing this, you say...
     ~AlterTrust(Rogue, -1)
     {
         - prologueEvents ? (trustedScholar): The Scholar seems surprised at you, but <>
-        - else: The Scholar scoffs. "Why did I expect anything different from you." But <>
+        - else: The Scholar scoffs. "Why did I expect anything different from you?" But <>
     }
     she listens to you and goes back to taking notes and observing.
     The Rogue says, "Well I guess they could be trapped anyway, better safe than sorry," but you can tell he is disappointed as well.
-* "Go ahead."
+    ->our_mission
+* (go_ahead)"Go ahead."
     ~AlterTrust(Scholar, 1)
     ~AlterTrust(Rogue, 1)
     The Rogue boosts the Scholar up onto the first statue, and then deftly climbs up the second one on his own. 
     The Scholar finds a perch on the shoulder of her statue, and peers down into the bowl it is holding. She excalims, "Now this is interesting!"
     "The inside of these bowls is mirrored," she continues. " It appears they are designed to reflect moonlight when it enters the room through the skylight."
-    The Rogue chimes in from his statue. "There's some shiny things scattered at the bottom of this bowl, what about yours?"
-    "Oh I see," the Scholar says. "Let me work it out
-    TODO:
+    The Rogue chimes in from his statue. "There's some shiny things scattered at the bottom of this bowl, think they're valuable?"
+    ->tile_choice->
+    ->our_mission
 * "Let me join you."
     ~AlterTrust(Scholar, 2)
     ~AlterTrust(Rogue, 2)
@@ -1113,7 +1112,7 @@ Seeing this, you say...
     "Aha!" you hear the Scholar call from her perch on the other statue. "Now this is interesting."
     She turns to you. "Tell me, what do you think the purpose of these bowls is?"
     * * "They are braziers, to light the room."
-        The Scholar shakes her head. "Not quite. They aren't for producing light, they are for collecting light."
+        The Scholar shakes her head. "Not quite. They aren't for producing light, they're for collecting light."
     * * "They collect water, from the open roof."
         "Not quite. They don't collect water, they collect light." 
     * * "They reflect light from above."
@@ -1129,27 +1128,206 @@ Seeing this, you say...
                 "Typical," she sighs. <>
         }
         "Well, they reflect light, which is why this room has a skylight."
-    - - She continues. "Specifically, they reflect moonlight."
-    TODO:
-    
-- * [Continue.]->our_purpose
+    - - She continues. "Specifically, they reflect moonlight, and they are curved in such a way that the moonlight is all directed into the center of the bowl."
+        "Where these shiny things are!" observes the Rogue. "Think they're valuable?"
+        ->tile_choice->
+        {
+            //They both help you down
+            -prologueEvents ? (trustedScholar) && GetTrustThreshold(rogueTrust) != LOW:
+            Once they're on the ground, the Rogue and the Scholar both walk over and help you down from your statue.
+            TODO: Romance (Scholar x Rogue) hints?
+            //The Rogue helps you down
+            -GetTrustThreshold(rogueTrust) != LOW:
+            Now the rogue walks over to you and puts out a hand.
+            "Your turn, boss." He helps you down off the statue before going to rejoin the Scholar.
+            //The Scholar helps you down
+            -prologueEvents ? (trustedScholar) && GetTrustThreshold(scholarTrust) != LOW:
+            After helping the Scholar down, the Rogue pointedly turns away from your statue and walks off. However, the Scholar walks over and help you climb down to the ground.
+            "Come on," she says smiling. "I'm sure we have a lot more knowledge to uncover here."
+            //No one helps you down :(
+            -else:
+            Now that they are on the ground, the Scholar and the Rogue seem to have completely forgotten you. As they walk away chatting, you carefully lower yourself from your statue.
+        }
+        ->our_mission
+    * [nothing.]->go_ahead
+        
+=tile_choice
+"Indeed!" the Scholar replies. "These tiles are made of a type of ceramic that can hold magical enchantments. It seems likely that their magic is powered by moonlight, and they are placed in these bowls to recharge."
+The Rogue suddenly looks wary. "What kind of magic are we talking? The 'blow up in your face' kind? Or the 'make me fabulously wealthy' kind?"
+The Scholar laughs. "Maybe both, maybe neither." She crosses her arms. "But we won't know unless you go get some for me to study, now will we?" The Scholar arches an eyebrow in challenge. She seems to be teasing him.
+"Hmm, well when you put it like that..." The Rogue thinks for a moment, and then lifts himself over the edge of the bowl, intent on gethering some of the tiles.
+Seeing this, you tell him...
+    * "Take as many as you can."
+        ~AlterTrust(Rogue, 3)
+        ~AlterTrust(Scholar, 1)
+        "Music to my ears!" you hear the Rogue reply, his voice echoing strangely from inside the metal bowl. He starts gathering tiles.
+        The Scholar, meanwhile, seems to be briefly reconsidering. "Hopefully they don't actually need to remain in these bowls for some purpose..." Her voice trails off.
+        "What was that?" the Rogue asks.
+        "Oh, nothing!" The Scholar calls back.
+        The Rogue reappears a moment later. "Got 'em," he says, holding up his backpack.
+        ~act1Events += (allBlankTiles)
+    * "Just take one."
+        ~AlterTrust(Rogue, 1)
+        ~AlterTrust(Scholar, 2)
+        "Fair enough," you hear the Rogue reply. "I guess that would be less likely to blow up in my face." His voice is echoing strangely from inside the bowl.
+        "Indeed," replies the Scholar. "Besides, seeing as they are not currently empowered, I should be able to glean as much from one tile as I could from having all of them."
+        "Alright, got it!" You see the Rogue reappear over the edge of the bowl, tile in hand. He puts it in his pack.
+        ~act1Events += (oneBlankTile)
+    * "Don't take any."
+        [DEBUG INFO:
+        Rogue Trust Check: FAILED; Required Trust: HIGH; Current Trust: {GetTrustThreshold(rogueTrust)}]
+        DEBUG END]
+        ~AlterTrust(Scholar, -1)
+        {
+            - GetTrustThreshold(rogueTrust) == HIGH:
+                "You know, ordinarily I'm annoyed when people tell me not to take things." He reappears over the edge of the bowl. "But you I like. I trust your judgement."
+            /*
+            - GetTrustThreshold(rogueTrust) == MED:
+                ~AlterTrust(Rogue, -1)
+                The Rogue reappears over the edge of the bowl. "You couldn't have told me that before I climbed in here? Whatever, fine. It was probably going to kill me anyway."
+            */
+            - else:
+                ~AlterTrust(Rogue, -2)
+                 
+                "Huh, that's an idea," the Rogue replies, his voice echoing strangely from inside the bowl. "But I have a couterproposal: Stop telling me what to do." He reappears over the edge of the bowl with a tile in hand, smiling smugly at you.
+                ~act1Events += (oneBlankTile)
+        }
+    - Then in one quick motion, the Rogue lifts himself over the edge of the bowl and drops to the ground, landing in a roll. He then offers his hand to help the Scholar climb down.
+    ->->
 
-=our_purpose
-->END
+===our_mission
+*[Continue.]->bump
+=bump
+Meanwhile, you notice that the Ranger and the Cleric have begun unpacking supplies. However, at the moment they are in conversation about your group's mission.
+//Talk about camp
+"Do you think we'll be s-safe here? the Cleric asks the Ranger.
+"Definitely," she replies. "Those doors are sealed tight, and there is only one other entrance. As long as we keep our normal watch we should be fine."
+"Plus," she continues, "that grate in the ceiling means we can have a fire, so we should be nice and comfortable for one more night at least."
+"Oh excellent! One more night of light before we fully head into the d-dark." He pauses. " I know the artifact we seek is important," he says softly, "but I must admit I am quite f-frightened of what we might face on the way to finding it."
+"I'm worried too," the Ranger replies, "but a lot of people are depending on us. The city won't last much longer under seige," she continues grimly. "This artifact is supposed to be the only thing that can turn the tide for us."
+"As long as we s-survive to use it."
+They notice you listening in, and the Ranger addresses you. "Well boss, how are you feeling about all this?"
+* "We'll make it through this together[."]," you say reassuringly. 
+    ~AlterTrust(Ranger, 1)
+    ~AlterTrust(Cleric, 2)
+    "That's the idea," the Ranger replies.
+    "Yes I suppose that's why we were each ch-chosen for this team!" The Cleric seems to have regained some of his courage. 
+    "Yes, we have to rely on one another!" you continue. <>
+* "I'm focused on what we are fighting for[."]," you say. <>
+* "There's no room for fear[."]," you say bluntly.
+    ~AlterTrust(Ranger, -1)
+    ~AlterTrust(Cleric, -2)
+    "Sometimes fear has a way of keeping you alive," the Ranger sighs, "but I see your point."
+    The Cleric's eyes go wide, but he says nothing.
+    ~playerSympatheticToCleric = false
+    "We have to face the facts," you continue. <>
+* "It doesn't matter how I feel[."]," you say. <>    
+
+//Talk about mission
+- "Without this artifact our home could be destroyed."
+    "That's what they tell us," the Ranger replies.
+    "I p-pray that they are wrong. Do we even know for sure what this artifact is? What it d-does?"
+* "It will shield the city."
+    ~AlterTrust(Ranger, -1)
+    ~AlterTrust(Cleric, 1)
+    "I suppose that doesn't s-sound so bad," the Cleric replies.
+    "But all that will do is delay," the Ranger says. "Any shield can be broken through eventually."
+* "It will destroy the invaders."
+    ~AlterTrust(Ranger, 2)
+    ~AlterTrust(Cleric, -2)
+    "Good," the Ranger says decisively. "The direct solution is best."
+    "But anything with that much destructive p-potential could easily be misused, or misfired. What if this artifact destroys the invaders AND our home?"
+    "That might be a risk we have to take." The Ranger looks grim for a moment, as if lost in a painful memory.
+* "It will force a truce."
+    ~AlterTrust(Ranger, -2)
+    ~AlterTrust(Cleric, 2)
+    "Oh!" The Cleric's face brightens. "Wh-what a wonderful turn that would be. No more v-violence."
+    "All those monsters know is violence." The Ranger laughs bitterly. "I'll believe it when I see it."
+* "We don't know what it will do."
+    ~AlterTrust(Cleric, -1)
+    ~AlterTrust(Ranger, 1)
+    "Th-that's what I was afraid of." 
+    "I was hoping the Council gave you more info to go on than the rest of us," the Ranger sighs. "But I appreciate your honesty."
+    
+
+- The Ranger continues. "But I suppose we don't have to worry about that until tomorrow at least." She grabs one of the bedrolls and hands it to you. "Here, help us finish setting up camp."
+*[Continue.]->rest_act1
+
 
 ===rest_act1
+TODO: From here all text is placeholder
+[DEBUG: All text from this point on is placeholder]
+//Explain resting
+{
+    -InjuryCount() > 0: Because you have injured companions, <>
+    -else: Though you don't need it right now, <>    
+}
+the Cleric explains that he has healing magic that can treat almost any injury, but it takes at least one full night of rest to work. {InjuryCount() > 0: Resting tonight would allow all your injured companions to heal.}
+*[Continue.]->argument
+=argument
+//Scholar argues back
+The Scholar joins you, sees you are setting up camp, and gets angry. She asssumed you were continuing immediately into the vault, and is indiginent about being asked to wait for an entire night "on the precipice of discovery." ->rest_argument
+=rest_argument
+* {InjuryCount() > 0} [Point out that you have injured party members]
+    "They knew the risks. We can't afford to stop."
+    ->rest_argument
+* {IsInjured(scholarState)} [Point out that she is injured]
+    "Do you really think I would let something so trivial stop me now?"
+    ->rest_argument
+* [Agree with her]
+    {InjuryCount() > 0: The Cleric, with surprising ferocity, argues strongly against moving forward without rest. He explains that his healing magic can cure all injuries given enough time, but that it will not work without a full night of rest.}
+    The Ranger argues that the party is tired from a full day of travel, and that pushing ahead past exhaustion will only get you all into trouble.
+    ->rest_argument
+* [Rest for the night]
+//You take a side
+//We are resting no matter what
+//Scholar foreshadowing
 ->END
 
 ===conversations_act1
+=choice
+ * [Talk to the Ranger.]->ranger
+ * [Talk to the Rogue.]->rogue
+ * [Talk to the Cleric.]->cleric
+ * [Talk to the Scholar.]->scholar
+ * {CHOICE_COUNT() == 0} ->night_1
+ * {CHOICE_COUNT() < 4} [No one else.]->night_1
+=ranger
+->choice
+=rogue
+->choice
+=cleric
+->choice
+=scholar
+->choice
 ->END
 
 ===night_1
+~HealOneStepAll(true)
+=dream
 ->END
 
 ===path_forward
 ->END
 
-===puzzle_room
+===scholar_passageway
+->END
+
+===riddle_door
+=scholar_riddle
+->END
+=rogue_riddle
+->END
+=ranger_riddle
+->END
+=brothers_riddle
+->END
+=your_riddle
+->END
+
+===scholar_lesson
+//Scholar learns to view others as equals
+//Scholar learns to view others as disposable pawns
 ->END
 
 /****** ACT 2: The Brothers ******
