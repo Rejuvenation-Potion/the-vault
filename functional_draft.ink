@@ -155,13 +155,13 @@ LIST brothersKnowledge = KNOW_ARE_BROTHERS, KNOW_ABOUT_CONFLICT, HEARD_ONE_SIDE,
 LIST rogueEndings = revenge, loner, belonging
 LIST clericEndings = lostFaith, statusQuo, enlightenment
 //Ranger
-LIST rangerGriefStages = CLOSED_OFF, OPENING_UP, PROCESSING_GRIEF, ACCEPTED_LOSS
+LIST rangerGriefStages = (CLOSED_OFF), OPENING_UP, PROCESSING_GRIEF, ACCEPTED_LOSS
 LIST rangerEndings = sacrifice, deathGuilt, deniedMartyr, brilliantPloy
 
 === DEBUG_MENU
 + [Start Game.]->SETUP_PROLOGUE
 + [Skip to Act 1.] ->SKIP_TO_ACT_1
-+ [Skip to Act 2.] ->SKIP_TO_ACT_2
+//+ [Skip to Act 2.] ->SKIP_TO_ACT_2
 
 
 /****** PROLOGUE: The Vault ******
@@ -435,7 +435,9 @@ Now that you know more about the magic, who will deal with it?
     You turn to the Cleric. "Go ahead and dispel it."
     ~SetStateTo(clericState, busy)
     ~AlterTrust(Cleric, 1)
-    ~AlterTrust(Scholar, -2)
+    {job_010.scholar: 
+        ~AlterTrust(Scholar, -2)
+    }
     ->cleric
     
 
@@ -532,6 +534,7 @@ Now for the lock: who should climb up and open it?
     
 * {CanGiveJob(rogueState)} [Assign the Rogue.]
     "Get that lock open," you tell the Rogue. 
+    ~AlterTrust(Rogue, 1)
     ~SetStateTo(rogueState, busy)
     ->rogue
     
@@ -909,6 +912,7 @@ Pick a Save State to start Act 1 with:
 ///ACT 1 Variables
 VAR playerSympatheticToCleric = true
 LIST act1Events = oneBlankTile, allBlankTiles, tilesEmpowered, tookEmpoweredTiles
+LIST act1Hints = rangerHint, rogueHint, clericHint, scholarHint
 ///ACT 1 Scenes
 ===SETUP_ACT1
 
@@ -1102,7 +1106,7 @@ Seeing this, you say...
     ->our_mission
 * "Let me join you."
     ~AlterTrust(Scholar, 2)
-    ~AlterTrust(Rogue, 2)
+    ~AlterTrust(Rogue, 1)
     {
         - prologueEvents ? (trustedScholar): "Of course!" the Scholar beams at you. "Here, I'll help you up first."
         - else: "Oh really?" the Scholar replies with some doubt. She turns to the Rogue and tells him, "why don't we let our brilliant leader go first then?"
@@ -1174,10 +1178,13 @@ Seeing this, you tell him...
         "Alright, got it!" You see the Rogue reappear over the edge of the bowl, tile in hand. He puts it in his pack.
         ~act1Events += (oneBlankTile)
     * "Don't take any."
-        [DEBUG INFO:
-        Rogue Trust Check: FAILED; Required Trust: HIGH; Current Trust: {GetTrustThreshold(rogueTrust)}]
-        DEBUG END]
         ~AlterTrust(Scholar, -1)
+        [DEBUG INFO:
+        Rogue Trust Check: Listen or disobey?
+        Required Trust: HIGH; 
+        Current Trust: {GetTrustThreshold(rogueTrust)}
+        Trust Check {GetTrustThreshold(rogueTrust) == HIGH: SUCCESSFUL | FAILED}
+        DEBUG END]
         {
             - GetTrustThreshold(rogueTrust) == HIGH:
                 "You know, ordinarily I'm annoyed when people tell me not to take things." He reappears over the edge of the bowl. "But you I like. I trust your judgement."
@@ -1231,13 +1238,13 @@ They notice you listening in, and the Ranger addresses you. "Well boss, how are 
     ~AlterTrust(Ranger, -1)
     ~AlterTrust(Cleric, 1)
     "I suppose that doesn't s-sound so bad," the Cleric replies.
-    "But all that will do is delay," the Ranger says. "Any shield can be broken through eventually."
+    "But all that will do is delay," the Ranger says. "Any shield can be broken through eventually. And trust me," she says intently, "those monsters will never stop attacking."
 * "It will destroy the invaders."
     ~AlterTrust(Ranger, 2)
     ~AlterTrust(Cleric, -2)
     "Good," the Ranger says decisively. "The direct solution is best."
     "But anything with that much destructive p-potential could easily be misused, or misfired. What if this artifact destroys the invaders AND our home?"
-    "That might be a risk we have to take." The Ranger looks grim for a moment, as if lost in a painful memory.
+    "That might be a risk we have to take. Those monsters are relentless." The Ranger looks grim for a moment, as if lost in a painful memory.
 * "It will force a truce."
     ~AlterTrust(Ranger, -2)
     ~AlterTrust(Cleric, 2)
@@ -1247,7 +1254,7 @@ They notice you listening in, and the Ranger addresses you. "Well boss, how are 
     ~AlterTrust(Cleric, -1)
     ~AlterTrust(Ranger, 1)
     "Th-that's what I was afraid of." 
-    "I was hoping the Council gave you more info to go on than the rest of us," the Ranger sighs. "But I appreciate your honesty."
+    "I was hoping the Council gave you more info to go on than the rest of us," the Ranger sighs. "But I appreciate your honesty. I just hope whatever it is we find will deal with those monsters once and for all."
     
 
 - The Ranger continues. "But I suppose we don't have to worry about that until tomorrow at least." She grabs one of the bedrolls and hands it to you. "Here, help us finish setting up camp."
@@ -1258,17 +1265,17 @@ They notice you listening in, and the Ranger addresses you. "Well boss, how are 
 TODO: From here all text is placeholder
 [DEBUG: All text from this point on is placeholder]
 //Explain resting
+The Cleric explains that he has healing magic that can treat almost any injury, but it takes at least one full night of rest to work. 
 {
-    -InjuryCount() > 0: Because you have injured companions, <>
-    -else: Though you don't need it right now, <>    
+    -InjuryCount() > 0: Because you have injured companions, he gets to work preparing his spell.
+    -else: Though your group doesn't need any healing right now, it will likely be useful in the future.
 }
-the Cleric explains that he has healing magic that can treat almost any injury, but it takes at least one full night of rest to work. {InjuryCount() > 0: Resting tonight would allow all your injured companions to heal.}
 *[Continue.]->argument
 =argument
 //Scholar argues back
 The Scholar joins you, sees you are setting up camp, and gets angry. She asssumed you were continuing immediately into the vault, and is indiginent about being asked to wait for an entire night "on the precipice of discovery." ->rest_argument
 =rest_argument
-* {InjuryCount() > 0} [Point out that you have injured party members]
+* {!IsInjured(scholarState) && InjuryCount() > 0} [Point out that you have injured party members]
     "They knew the risks. We can't afford to stop."
     ->rest_argument
 * {IsInjured(scholarState)} [Point out that she is injured]
@@ -1279,32 +1286,113 @@ The Scholar joins you, sees you are setting up camp, and gets angry. She asssume
     The Ranger argues that the party is tired from a full day of travel, and that pushing ahead past exhaustion will only get you all into trouble.
     ->rest_argument
 * [Rest for the night]
-//You take a side
-//We are resting no matter what
+You make it clear that any further exploration will have to wait for tomorrow; the party must rest for tonight.
 //Scholar foreshadowing
-->END
+[Scholar Trust Check: {GetTrustThreshold(scholarTrust)}]
+{
+    //High Trust
+    -GetTrustThreshold(scholarTrust) == HIGH: After a moment of thought, the Scholar accepts your judgement. It goes against her instincts and desires, but she truly trusts your leadership.
+    //Med Trust, helped outside
+    -GetTrustThreshold(scholarTrust) == MED && prologueEvents ? (trustedScholar): The Scholar disagrees, but mentions that since you trusted her outside, she will go along with your judgement for now.
+    //Med Trust, didn't help outside
+    -GetTrustThreshold(scholarTrust) == MED && prologueEvents !? (trustedScholar): The Scholar reminds you how you already didn't trust her outside, and that this is beginning to form a worrying pattern of obstruction.
+    //Low trust
+    -else: The Scholar is furious with this decision, and makes it clear that she thinks of you as an obstacle to overcome.
+}
+
+->conversations_act1
 
 ===conversations_act1
+Regardless of the Scholar's feelings, the rest of your party works to finish setting up camp. This might be a good time to talk to some of your companions one on one.
+->choice
 =choice
- * [Talk to the Ranger.]->ranger
+TODO: What topics for each conversation? How many?
+Who do you approach?
+ * [Talk to the Ranger.]
+    You approach the Ranger, who is tending to the campfire. <>
+    {IsInjured(rangerState): You notice she is still clutching at her wound every now and then. <>}
+    ->ranger
  * [Talk to the Rogue.]->rogue
+ You approach the Rogue, who is lying on his bedroll and idly shuffling a deck of cards.
  * [Talk to the Cleric.]->cleric
+ You approach the Cleric, who is reading from his prayerbook by the firelight.
  * [Talk to the Scholar.]->scholar
+ You approach the Scholar, who is pacing back and forth by the passageway leading out of the room.
+ TODO: Figure out fallback choices
  * {CHOICE_COUNT() == 0} ->night_1
  * {CHOICE_COUNT() < 4} [No one else.]->night_1
 =ranger
-->choice
+    * {IsInjured(rangerState)} [Ask her about her injury.]
+    * [Ask about her view of the invaders.]
+    * [Ask her about home.]
+    * {act1Hints ? (rangerHint)} [Who was it that you lost?]
+        //Trust check
+    * [That's all for now.]->choice
+    - ->ranger
 =rogue
-->choice
+    The Rogue invites you to sit with him and play a round of snake pit, a card game he knows.
+/*
+    * {IsInjured(rogueState)} [Ask him about his injury.]
+    * [What's in this for you?]
+    * [Ask him about home.]
+    * {act1Hints ? (rogueHint)} [Who exactly shouldn't I trust?]
+    //Trust check
+*/
+    * [That's all for now.]->choice
+    - ->rogue
 =cleric
-->choice
+    * {IsInjured(clericState)} [Ask him about his injury.]
+    * [Ask him about his magic.]
+        The Cleric explains that his magic, like that of all priests in the city, comes from the sun. He is nervous about exploring this moon temple for the same reason.
+        * * [Combat magic?]
+        * * [That sounds useful.]
+        * * [ ]
+    * [Ask him about home.]
+    * {act1Hints ? (clericHint)} [What did you mean about The Council?]
+    //Trust check
+    * [That's all for now.]->choice
+    - ->cleric
 =scholar
-->choice
-->END
+    * {IsInjured(scholarState)} [Ask her about her injury.]
+    * [Ask her about her studies.]
+    * [Ask her about home.]
+    * [About resting...]
+    * {act1Hints ? (scholarHint)} [Ask her what she means by 'cutthroat']
+    //Trust check
+    * [That's all for now.]->choice
+    - ->scholar
 
 ===night_1
+{InjuryCount() > 0: The Cleric finishes casting his healing spell.} Your party settles down for the night.
+{InjuryCount() > 0: Over the night, all your companions' injuries are healed.}
 ~HealOneStepAll(true)
+[DEBUG:
+Scholar Trust Check: Stays or sneaks ahead?
+{
+- prologueEvents ? (trustedScholar): Trust Required: MED (trusted outside)
+- else: Trust Required: HIGH (did not trust outside)
+}
+Current Trust: {GetTrustThreshold(scholarTrust)}
+{
+- GetTrustThreshold(scholarTrust) == HIGH || (prologueEvents ? (trustedScholar) && GetTrustThreshold(scholarTrust) == MED): Trust Check SUCCESSFUL; Scholar stays 
+END DEBUG]->awakened_by_scholar
+- else: Trust Check FAILED; Scholar sneaks away 
+END DEBUG]->awakened_by_scream
+}
+END DEBUG]
+TODO: Dream?
+->dream
 =dream
+->END
+
+===awakened_by_scholar
+*[Continue]->bump
+=bump
+->END
+
+===awakened_by_scream
+*[Continue]->bump
+=bump
 ->END
 
 ===path_forward
@@ -1333,7 +1421,7 @@ The Scholar joins you, sees you are setting up camp, and gets angry. She asssume
 /****** ACT 2: The Brothers ******
 
 ******/
-///ACt 2 Variables
+///Act 2 Variables
 === SKIP_TO_ACT_2
 Pick a Save State to start Act 2 with:
 + [Default Save State]
@@ -1353,15 +1441,104 @@ Pick a Save State to start Act 2 with:
 {scholarEndings ? (humbled): }
 ->END
 
+===brothers_intro
+->END
+
+===job_201
+->END
+
+===job_202
+->END
+
+===job_203
+->END
+
+===diverging_paths
+->END
+
+===rogue_passage
+->END
+
+===cleric_passage
+->END
+
+===act2_puzzle_room
+->END
+
+===job_210
+->END
+===job_211
+->END
+
+===job_220
+->END
+===job_221
+->END
+
+===act2_puzzle_finale
+->END
+
+===brothers_finale
+->END
+
+===act2_end
+-
+->SETUP_ACT3
 
 /****** ACT 3: The Ranger ******
 
 ******/
+===SETUP_ACT3
+->intro_act3
+
+===intro_act3
+->END
+
+===back_outside
+->END
+
+===new_destination
+->END
+
+===night_2
+->END
+
+===ambush
+->END
+
+===death_around_every_corner
+->END
+
+///Camp
+===job_300
+->END
+
+///Jungle
+===job_310
+->END
+
+///Ravine
+===job_320
+->END
+
+///Riverbed
+===job_330
+->END
+
+///Basin
+===job_340
+->END
+
+///Doors
+===job_350
+->END
+
+===finale_act3
+->END
+
 
 /****** FINALE: The Artifact ******
 
 ******/
 
-/*
-Cleric Rogue Argument scene
-*/
+

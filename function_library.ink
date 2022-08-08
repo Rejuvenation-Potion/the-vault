@@ -374,13 +374,13 @@ Also reduces that companion's trust by 1
 //Get correct trust variable from state and reduce by 1
 {
     - companionState ? (Ranger):
-        ~AlterTrust(rangerTrust, -1)
+        ~AlterTrust(Ranger, -1)
     - companionState ? (Rogue):
-        ~AlterTrust(rogueTrust, -1)
+        ~AlterTrust(Rogue, -1)
     - companionState ? (Cleric):
-        ~AlterTrust(clericTrust, -1)
+        ~AlterTrust(Cleric, -1)
     - companionState ? (Scholar):
-        ~AlterTrust(scholarTrust, -1)
+        ~AlterTrust(Scholar, -1)
     - else:
         BUG: Accessing Unknown Companion
 }
