@@ -187,6 +187,46 @@ returns "high" "med" or "low" from that list
         ~ return TRUST_THRESHOLDS.LOW
 }
 
+/*
+GetHighestTrust()
+*/
+=== function GetHighestTrust()
+~temp highest = Ranger
+~temp highestScore = rangerTrust
+{   rogueTrust > highestScore:
+        ~highestScore = rogueTrust
+        ~highest = Rogue
+}
+{   clericTrust > highestScore:
+        ~highestScore = clericTrust
+        ~highest = Cleric
+}
+{   scholarTrust > highestScore:
+        ~highestScore = scholarTrust
+        ~highest = Scholar
+}
+~return highest
+
+/*
+GetLowestTrust()
+*/
+=== function GetLowestTrust()
+~temp lowest = Scholar
+~temp lowestScore = scholarTrust
+{   clericTrust < lowestScore:
+        ~lowestScore = clericTrust
+        ~lowest = Cleric
+}
+{   rogueTrust < lowestScore:
+        ~lowestScore = rogueTrust
+        ~lowest = Rogue
+}
+{   rangerTrust < lowestScore:
+        ~lowestScore = rangerTrust
+        ~lowest = Ranger
+}
+~return lowest
+
 
 //AVAILABILITY SYSTEM
 //Setting States

@@ -151,7 +151,7 @@ TODO: Job finish text
 //Scholar
 LIST scholarEndings = humbled, proud
 //Cleric and Rogue
-LIST brothersKnowledge = KNOW_ARE_BROTHERS, KNOW_ABOUT_CONFLICT, HEARD_ONE_SIDE, HEARD_BOTH_SIDES
+LIST brothersKnowledge = WHY_NOT_ASK_HIM, KNOW_ARE_BROTHERS, KNOW_ABOUT_CONFLICT, HEARD_ONE_SIDE, HEARD_BOTH_SIDES
 LIST rogueEndings = revenge, loner, belonging
 LIST clericEndings = lostFaith, statusQuo, enlightenment
 //Ranger
@@ -1153,7 +1153,7 @@ Seeing this, you say...
             Now that they are on the ground, the Scholar and the Rogue seem to have completely forgotten you. As they walk away chatting, you carefully lower yourself from your statue.
         }
         ->our_mission
-    * [nothing.]->go_ahead
+    //* [nothing.]->go_ahead
         
 =tile_choice
 "Indeed!" the Scholar replies. "These tiles are made of a type of ceramic that can hold magical enchantments. It seems likely that their magic is powered by moonlight, and they are placed in these bowls to recharge."
@@ -1165,11 +1165,11 @@ Seeing this, you tell him...
         ~AlterTrust(Rogue, 3)
         ~AlterTrust(Scholar, 1)
         "Music to my ears!" you hear the Rogue reply, his voice echoing strangely from inside the metal bowl. He starts gathering tiles.
-        The Scholar, meanwhile, seems to be briefly reconsidering. "Hopefully they don't actually need to remain in these bowls for some purpose..." Her voice trails off.
+        The Scholar, meanwhile, seems to be reconsidering. "Hopefully they don't actually need to remain in these bowls for some purpose..." Her voice trails off.
         "What was that?" the Rogue asks.
-        "Oh, nothing!" The Scholar calls back.
-        The Rogue reappears a moment later. "Got 'em," he says, holding up his backpack.
-        ~act1Events += (allBlankTiles)
+        "On second thought just take one tile!" The Scholar calls back.
+        "Oh fine," the Rogue groans. He reappears a moment later. "Got one," he says, holding up his backpack.
+        ~act1Events += (oneBlankTile)
     * "Just take one."
         ~AlterTrust(Rogue, 1)
         ~AlterTrust(Scholar, 2)
@@ -1302,6 +1302,8 @@ You make it clear that any further exploration will have to wait for tomorrow; t
 
 ->conversations_act1
 
+//Extra chance to change trust levels
+//Player can get reward of early information from companions at HIGH trust
 ===conversations_act1
 Regardless of the Scholar's feelings, the rest of your party works to finish setting up camp. This might be a good time to talk to some of your companions one on one.
 ->choice
@@ -1317,20 +1319,103 @@ Who do you approach?
  * [Talk to the Cleric.]->cleric
  You approach the Cleric, who is reading from his prayerbook by the firelight.
  * [Talk to the Scholar.]->scholar
- You approach the Scholar, who is pacing back and forth by the passageway leading out of the room.
+//Intro within scholar section, changes based on trust
  TODO: Figure out fallback choices
  * {CHOICE_COUNT() == 0} ->night_1
  * {CHOICE_COUNT() < 4} [No one else.]->night_1
 =ranger
-    * {IsInjured(rangerState)} [Ask her about her injury.]
-    * [Ask about her view of the invaders.]
-    * [Ask her about home.]
-    * {act1Hints ? (rangerHint)} [Who was it that you lost?]
+    * {IsInjured(rangerState)} You ask her about her injury.
+    She says she is fine, and that the Cleric's healing has been more than enough already.
+        * * "Good to hear"
+        * * "Are you sure?"
+            ~AlterTrust(Ranger, -1)
+            "I've had far worse than this."
+    * [Ask about the "monsters."] You ask about why she called the invaders "monsters." 
+        As she discusses her experience as a scout for the army, you realize this fight is personal to her. She lost someone very close to her in the fighting.
+        * * [Press for more details]
+            WIP: A trust check here. At LOW the Ranger refuses to speak more, but at HIGH/MED you can start helping her through her grief.
+        * *[Talk about something else]
+    //* {act1Hints ? (rangerHint)} [Who was it that you lost?]
         //Trust check
     * [That's all for now.]->choice
     - ->ranger
 =rogue
-    The Rogue invites you to sit with him and play a round of snake pit, a card game he knows.
+The Rogue sits up as you approach and holds out his deck of cards. He asks if you know a game called "Snake Pit."
+    * "No, I don't," you say.
+    The Rogue winks. "That's because I invented it."
+    * "Yes, I do," you lie.
+    "Oh really!" The Rogue smirks. "I would have actually believed you if this weren't a game I invented."
+    - "Here, I'll explain the rules and deal you in. It's very quick, and not that complicated."
+    After hearing the rules--which have something to do with "capturing" your opponent's cards with higher value cards of your own--you aren't sure that you agree with "not complicated." But it does sound quick, taking only a few minutes per hand. As the Rogue lays out a grid of face-down cards to prepare the game, you decide to...
+    * focus on asking the rogue questions.
+    Accepting that you are probably going to lose anyway, you focus your attention on asking the rogue questions about his personal life.
+    [Rogue Trust Check: {GetTrustThreshold(rogueTrust)}]
+    {
+        -GetTrustThreshold(rogueTrust) == HIGH: You've built up a lot of tust with the Rogue, and so he is surprisingly forthcoming--he tells you a lot about his life living as an exile on the outskirts of the city, surviving by stealing from the inner city and running cons on travellers. When you ask why he was exiled in the first place, he leans in conspiratorially. "Why don't you ask him?" he says, pointing over at the Cleric for emphasis. You try to inquire further, but as much as he trusts you, this is as much as the Rogue will say for now.
+            ~Reach(WHY_NOT_ASK_HIM)
+        -GetTrustThreshold(rogueTrust) == MED: The Rogue seems bored by your quesioning, but plays along while he easily defeats you at cards. You learn he lives in the outskirts of the city, stealing and running cons to get by. He dodges any more personal questions, but toward the end of the game, he leans in and lowers his voice to a whisper. "Between you and me," he says, "I wouldn't trust everyone in this little group of ours." You try to ask what he means by this, but he won't say more.
+        -else: But despite all your efforts, the Rogue is a totally closed book. At the end of the game, all you've learned is that he doesn't seem to trust you very much.
+    }
+    "Oh, but thanks for playing," he smirks. "I do love an easy win."
+    ~AlterTrust(Rogue, 1)
+    * focus on playing the game.
+    The Rogue's rules explanation makes more sense as you start to play, and you begin to develop a strong strategy for when to attack and when to defend. It isn't enough to beat the Rogue--he did invent the game, after all--but he seems legitimately impressed by your efforts.
+    ~AlterTrust(Rogue, 2)
+    * find a way to cheat.
+    Figuring you need to even the odds if you're going to compete against the inventor of this game, you take the first opportunity hide some cards up your sleeve. By carefully deploying them, you end up winning the game! The Rogue figures out how you did it and is very impressed, saying that "cheating is at the heart of every good strategy."
+    ~AlterTrust (Rogue, 3)
+    * excuse yourself and walk away.
+    ~AlterTrust(Rogue, -2)
+    The Rogue laughs it off, but you can tell he's disappointed.
+    - ->choice
+=rogue_advanced
+    The Rogue sits up as you approach and holds out his deck of cards. He asks if you know a game called "Snake Pit."
+    * "No, I don't," you say.
+    The Rogue winks. "That's because I invented it."
+    * "Yes, I do," you lie.
+    ~AlterTrust(Rogue, 1)
+    "Oh really!" The Rogue smirks. "I would have actually believed you if this weren't a game I invented."
+    - "Here, I'll explain the rules and deal you in. It's very quick, and not that complicated."
+    After hearing the rules--which have something to do with "capturing" your opponent's cards with higher value cards of your own--you aren't sure that you agree with "not complicated." But it does sound quick, taking only a few minutes per hand. ->snake_pit
+VAR hands_played = 0
+=snake_pit
+~hands_played++
+{ once:
+    - As the Rogue lays out a grid of face-down cards to prepare the game, you decide to...
+        ~temp first_turn = true
+    - You are partway through the game and you can tell <>
+        {
+            - cheated: that you are winning!
+            - strategy: that you are evenly matched.
+            - else: you have no idea what you are doing.
+        }
+        <> Seeing this, you decide to...
+    - 
+    The game is nearly over now, and you can tell <>
+    {
+        - cheated && strategy: that you are going to win!
+        - cheated: That you are still doing quite well.
+        - strategy: that despite your best efforts, the Rogue has pulled ahead somehow. 
+        - else: 
+            that you are absolutely going to lose.
+             ~temp final_turn_losing = true
+    }
+    - ->conclusion
+    
+}
+    + focus on asking the Rogue questions.
+        * * Question 1
+        * * Question 2
+        * * Question 3
+    * (strategy) {snake_pit < 3 || cheated}  focus on playing the game strategically.
+        Now that you are playing, the Rogue's rules explanation makes a bit more sense. You start to devise a general strategy for when to attack and when to defend, and it seems to be working alright.
+    * (cheated) {snake_pit < 3 || strategy} focus on finding a way to cheat.
+        Knowing that conventional play won't lead to victory--your opponent invented the game after all--you look for a way to even the odds. You realize that there are frequent opportunities to "accidently" switch the positions of your face down cards, and you start doing this to make sure your highest cards are always where they need to be.
+    * {snake_pit == 1} decline to play the game.
+    * {snake_pit == 2 || (snake_pit == 3 && (cheated || strategy))} excuse yourself and walk away.
+    * {snake_pit == 3} flip the card table and walk away.
+    - ->snake_pit
+    - (conclusion)
 /*
     * {IsInjured(rogueState)} [Ask him about his injury.]
     * [What's in this for you?]
@@ -1343,22 +1428,34 @@ Who do you approach?
 =cleric
     * {IsInjured(clericState)} [Ask him about his injury.]
     * [Ask him about his magic.]
-        The Cleric explains that his magic, like that of all priests in the city, comes from the sun. He is nervous about exploring this moon temple for the same reason.
-        * * [Combat magic?]
-        * * [That sounds useful.]
-        * * [ ]
-    * [Ask him about home.]
-    * {act1Hints ? (clericHint)} [What did you mean about The Council?]
-    //Trust check
+        The Cleric explains that his magic, like that of all priests in the city, comes from the sun. It is mostly used to heal and protect people, as well as to dispel other more harmful magic.
+        * * "That sounds useful."
+            ~AlterTrust(Cleric, 1)
+        * * "I was hoping more for fireballs and lightning bolts."
+            ~AlterTrust(Cleric, -1)
+        - - he explains that he does know some offensive spells, but he prefers not to use them.
+        * * "I won't make you"
+            ~AlterTrust(Cleric, 2)
+        * * "It might be unavoidable."
+            "I know," the Cleric says sadly.
+        * * "You'll do what I tell you."
+            ~AlterTrust (Cleric, -2)
+            "U-Understood."
+    * {Reached(WHY_NOT_ASK_HIM)} ["The Rogue told me not to trust you."]
+        The Cleric seems surprised, and sadly says, "he has his r-reasons."
+        * * [Push for more info]
+            This option reveals that the Cleric and Rogue are brothers, and that the Cleric did something terrible to betray the Rogue's trust. Something he seems to regret.
+        * * [Talk about something else]
     * [That's all for now.]->choice
     - ->cleric
 =scholar
-    * {IsInjured(scholarState)} [Ask her about her injury.]
-    * [Ask her about her studies.]
-    * [Ask her about home.]
-    * [About resting...]
-    * {act1Hints ? (scholarHint)} [Ask her what she means by 'cutthroat']
-    //Trust check
+    The Scholar simply reiterates her position from before about not wanting to rest. This is your final chance to alter her trust before the Scholar trust check coming up.
+    * [Completely agree with her.]
+        ~AlterTrust(Scholar, 2)
+    * [Remind her the team has to work together.]
+        ~AlterTrust(Scholar, -1)
+    * [Demand she follow your orders.]
+        ~AlterTrust(Scholar, -2)
     * [That's all for now.]->choice
     - ->scholar
 
@@ -1366,6 +1463,47 @@ Who do you approach?
 {InjuryCount() > 0: The Cleric finishes casting his healing spell.} Your party settles down for the night.
 {InjuryCount() > 0: Over the night, all your companions' injuries are healed.}
 ~HealOneStepAll(true)
+Just as you are about to fall asleep, you get the faint sensation that something is watching you--not physically, but mentally. Something observing the inside of your mind. But just as you attempt to focus on it, you are instead swept into a dream...
+*[Continue.]->dream
+=dream
+Suddenly, you are in a vast stone chamber, its circular walls glowing with an ethereal light. Though you have never seen it before, you know this to be the center of the vault. 
+Ahead of you, two of your companions are struggling over a large circular disk about 3 feet across. It looks like the surface of the moon and is glowing with the same white light as the rest of the chamber, but much brighter. You know that this is the artifact you seek. Your two companions are at odds, each trying to rip the artifact from the other's grasp. 
+//Choose companions
+~temp lowTrustDreamCompanion = GetLowestTrust()
+~temp highTrustDreamCompanion = GetHighestTrust()
+
+[DEBUG
+Retrieving lowest trust companion: {GetLowestTrust()}
+Retireving highest trust companion: {GetHighestTrust()}
+END DEBUG]
+On the left is the {lowTrustDreamCompanion} who looks crazed with anger.
+On the right is the {highTrustDreamCompanion} who looks at you pleadingly for assistance.
+
+//Left = Low Trust
+* {lowTrustDreamCompanion == Ranger}[Assist the Ranger, on the left.]
+    The Ranger looks surprised as you come to her assistance, but accepts your help. Together, you pull on the artifact with all your might.
+* {lowTrustDreamCompanion == Rogue}[Assist the Rogue, on the left.]
+    The Rogue looks surprised as you come to his assistance, but accepts your help. Together, you pull on the artifact with all your might.
+* {lowTrustDreamCompanion == Cleric}[Assist the Cleric, on the left.]
+    The Cleric looks surprised as you come to his assistance, but accepts your help. Together, you pull on the artifact with all your might.
+* {lowTrustDreamCompanion == Scholar}[Assist the Scholar, on the left.]
+    The Scholar looks surprised as you come to her assistance, but accepts your help. Together, you pull on the artifact with all your might.
+//Right = High Trust
+* {highTrustDreamCompanion == Ranger}[Assist the Ranger, on the right.]
+    The Ranger looks grateful as you come to her assistance, and starts fighting with renewed strength. Together, you pull on the artifact with all your might.
+* {highTrustDreamCompanion == Rogue}[Assist the Rogue, on the right.]
+    The Rogue looks grateful as you come to his assistance, and starts fighting with renewed strength. Together, you pull on the artifact with all your might.
+* {highTrustDreamCompanion == Cleric}[Assist the Cleric, on the right.]
+    The Cleric looks grateful as you come to his assistance, and starts fighting with renewed strength. Together, you pull on the artifact with all your might.
+* {highTrustDreamCompanion == Scholar}[Assist the Scholar, on the right.]
+    The Scholar looks grateful as you come to her assistance, and starts fighting with renewed strength. Together, you pull on the artifact with all your might.
+//Can always choose yourself
+* [Sieze the artifact for yourself.]
+    Both of your companions look on in stunned betrayal as you step between them and attempt to sieze the artifact for yourself.
+- There is a blinding flash of light...->scholar_trust_check
+
+===scholar_trust_check
+*[Continue]
 [DEBUG:
 Scholar Trust Check: Stays or sneaks ahead?
 {
@@ -1379,43 +1517,164 @@ END DEBUG]->awakened_by_scholar
 - else: Trust Check FAILED; Scholar sneaks away 
 END DEBUG]->awakened_by_scream
 }
-END DEBUG]
-TODO: Dream?
-->dream
-=dream
-->END
 
 ===awakened_by_scholar
 *[Continue]->bump
 =bump
-->END
+...and you are awakened by a high-pitched scream echoing down the passageway.
+You and your companions jump to your feet and scramble to check on one another. It takes only a moment to realize who is missing: The Scholar. She must have gone ahead without the group while you were sleeping. As you gather your things, you realize that all her gear is gone as well.
+You realize that the room is bathed in moonlight, and as you look around the room, you notice that this seems to have altered the room. Frist <>->notice
+=notice
+you notice...
+* [the sky]
+    Directly overhead, the moon is visible through the skylight. It is nearly full and seems huge in the sky. It's light is making the room nearly as bright as day. 
+* [the walls]
+    The walls of the room are now covered in luminous blue writing in a language you cannot read. You look briefly at the others, but they shake their heads. Without the Scholar here to translate, there's no telling what it all means.
+* [The statues]
+    The moonlight has activated the statues and caused them to lower their arms to the ground. The bowls they hold are glowing brightly with reflected moonlight, but otherwise they are totally empty. 
+
+* {CHOICE_COUNT() == 0} ->trap_passageway.scholar_ahead
+- then <>->notice
 
 ===awakened_by_scream
 *[Continue]->bump
 =bump
+...and suddenly someone is shaking you awake. As you open your eyes the light seems almost as bright as it was in your dream. You look up and see the Scholar is the one waking you. She looks giddy with excitement, and tells you to hurry.
+You look around the room and realize things have changed. First <>->notice
+=notice
+you notice...
+* [the sky]
+    Directly overhead, the moon is visible through the skylight. It is nearly full and seems huge in the sky. It's light is making the room nearly as bright as day. 
+* [the walls]
+    The walls of the room are now covered in luminous blue writing in a language you cannot read. The Scholar tells you she has already started translating them, but seems to excited to stop and tell you what they say just yet.
+* [The statues]
+    The moonlight has activated the statues and caused them to lower their arms to the ground. The bowls they hold are glowing brightly with reflected moonlight. You and the Scholar look inside and see each is now holding several glowing ceramic tiles--they seem to have been empowered by the moonlight.
+    "They lowered the bowls to the ground in offering," the Scholar observes. "We should take what they hold!" She begins packing the tiles into her backpack.
+* {CHOICE_COUNT() == 0} ->trap_passageway
+- Then <>->notice
+
+You look up and see that the moon is directly visible through the open ceiling of the chamber. It is nearly full, and the room is bathed in moonlight.
 ->END
 
-===path_forward
-->END
+VAR scholarConfronted = true
+===trap_passageway
+the rest of your group finishes packing up camp, and the Scholar is urging you all into the passageway. "We've had our precious rest," she says. "But now time is of the essence!"
+You all rush into the passageway, but the Ranger looks uneasy. "I don't like this," she says. "We should be moving much slower, and someone should be scouting ahead for traps."
+* [Trust the Scholar to lead you.]
+    ~AlterTrust(Ranger, -2)
+    You ignore the Ranger and let the scholar continue to lead...
+* [Assign the Ranger to scout ahead.]
+    You tell the Ranger to scout ahead, but the Scholar refuses to cede control of the situation. She rushes to keep ahead of your scout, bumping and shoving to stay in the lead...
+* [Assign the Rogue to scout ahead.]
+    You tell the Rogue to scout ahead, but the Scholar refuses to cede control of the situation. She rushes to keep ahead of your scout, bumping and shoving to stay in the lead...
+* [Assign the Cleric to schot ahead.]
+    You tell the Cleric to scout ahead, but the Scholar refuses to cede control of the situation. She rushes to keep ahead of your scout, bumping and shoving to stay in the lead...
+- ...and just as the Ranger predicted, before long the Scholar has stumbled over a hidden tripwire. A cage of barbed wire descends from the ceiling. However, rather than cartching the Scholar, it captures the Cleric instead! He cries out in pain and surprise as some of the wire cuts into his skin.
+~Injure(clericState)
+"Well, that is most unfortunate," the Scholar observes. "But I am afraid we must keep going."
+"W-what?" the Cleric stammers, his eyes wide. "You would abandon me here?"
+"Oh I'm sure there will be time to come back for you later!" The Scholar seems to think this should comfort the Cleric, but he shows no sign of calming down. "What?" the Scholar seems genuinely confused. "We all knew the risks."
+She turns to you. "Come, we must keep moving."
+* [Go with the Scholar.]
+    ~AlterTrust(Rogue, -1)
+    ~AlterTrust(Ranger, -2)
+    ~AlterTrust(Cleric, -3)
+    You agree with the Scholar, much to the surprise of the rest of your companions.
+    The Rogue and the Ranger work to free the Cleric while you keep moving with the Scholar. they eventually all catch up to you, but the Cleric looks injured, and none of your companions seem happy.
+* [Assist the Cleric.]
+    ~AlterTrust(Scholar, -2)
+    ~AlterTrust(Cleric, 3)
+    ~AlterTrust(Ranger, 2)
+    ~AlterTrust(Rogue, 1)
+    You shake your head and turn back to help the Cleric out of the barbed cage. The Scholar groans and taps her foot while the rest of you work to free the Cleric, but she does not go ahead without you. When you are done, the Cleric looks very grateful, if a bit worse for wear.
+    "Fine," the Scholar says impatiently. "Can we continue now?"
+    * *[Confront the Scholar about her attitude.]
+    You stop in the passageway to have a confrontation about the Scholar's attitude, and how it is endangering the team and mission. She seems taken aback, and genuinely speechless. It looks like you might finally be getting through to her.
+    ~scholarConfronted = true
+    * *[Let the matter drop.]
+    You decide now is not the time for another argument, and the Scholar continues to regard the rest of your companions with visible disdain. Looking at them, the feeling now seems mutual.
+- ->riddle_door
+=scholar_ahead
+you hear another scream. While the first was a scream of surprise and pain, this one has words. "Will one of you useless imbeciles hurry up and help me already??" you hear the Scholar's voice echo down the passageway.
+The rest of the group relaxes slightly. At least the Scholar is alive, although she also sounds very annoyed.
+You make your way down the passageway until you come upon the Scholar tangled in a cage of barbed wire, suspended about 6 feet off the floor. It seems in her haste she stumbled her way into a trap. She looks somewhat injured, but not terribly so.
+~Injure(scholarState)
+As you work to free the Scholar...
+* You apologize for letting this happen.
+    ~AlterTrust(Scholar, 1)
+* You remind her she is part of a team.
+    ~AlterTrust(Scholar, 2)
+* You mock her for getting herself captured.
+    ~AlterTrust(Scholar, -2)
+- She considers your words for a moment, but they mostly seem to bounce off of her. After freeing her, the Scholar makes a snide comment about you not arriving sooner.
+* [Confront her about her attitude.]
+    You stop in the passageway to have a confrontation about the Scholar's attitude, and how it is endangering the team and mission. She seems taken aback, and genuinely speechless. It looks like you might finally be getting through to her.
+    ~scholarConfronted = true
+* [Let the matter drop.]
+    You decide now is not the time for another argument, and the Scholar continues to regard the rest of your companions with visible disdain. Looking at them, the feeling seems mutual.
+- ->riddle_door
 
-===scholar_passageway
-->END
-
+VAR full_moons = 0
+VAR CompanionsSafe = ()
+VAR usedWildcard = false
 ===riddle_door
+WIP: The group now arrives at the final challenge of Act 1: a riddle door. The group does not know this at first, but each riddle is about one member of the group (Some entity in the vault read each person's dreams to learn about them, including the player). 
+*[Continue.]->scholar_riddle.
 =scholar_riddle
-->END
+//She solves it
+The Scholar's riddle is a complex logic problem, but she solves it herself almost immediately. You are presented with a choice:
+* [Trust her]
+* [Ask the group for a second opinion.]
+- If you ask the group this time, she ignores you and enters her answer anyway, but for the other riddles this will be an important choice. She enters the answer using one of the ceramic tiles from the first room--because her answer is correct, it comes back with a full moon printed on it. However, she doesn't realize it the question had anything to do with herself.
+*[Continue.]->rogue_riddle
 =rogue_riddle
-->END
-=ranger_riddle
-->END
-=brothers_riddle
-->END
+You next turn to a wall covered in rectangular markings with numbers inside.
+{
+    -conversations_act1.rogue: Because you played cards with the rogue earlier, you recognize this as a representation of the card game he created. This is the first way you can discover that the riddles are specifically about your party members. Once you point this out to him, he realizes the riddle is how many moves it would take to win this game. The Scholar takes back control and realizes the answer is "3 moves." At this point you can choose:
+    * (rogue_wrong)[Trust her.]
+        She puts in the answer and the tile gets printed with a half-moon (wrong answer).->your_riddle
+    * [Ask the Rogue if she is correct.]
+        The Rogue realizes that, if you cheat, the game could actually be won in "2 moves." You now choose whose answer to use.
+        * * [Pick the Scholar's Answer]->rogue_wrong
+        * * [Pick the Rogue's Answer]
+            You put in the Rogue's answer and get back another full moon.
+        ->your_riddle
+    -else: The Scholar solves this as a math problem and presents an asnwer to you. You choose:
+    * [Trust her]
+        She puts in the answer and the tile gets printed with a half-moon (wrong answer).->your_riddle
+    * [Ask the group for a second opinion.]
+        At this point the Rogue this as a representation of the card game he created. This is the first way you can discover that the riddles are specifically about your party members. Once you point this out to him, he realizes the riddle is how many moves it would take to win this game. The Scholar takes back control and realizes the answer is "3 moves." At this point you can choose:
+    ** (rogue_wrong2)[Trust her.]
+        She puts in the answer and the tile gets printed with a half-moon (wrong answer).->your_riddle
+    ** [Ask the Rogue if she is correct.]
+        The Rogue realizes that, if you cheat, the game could actually be won in "2 moves." You now choose whose answer to use.
+        * * * [Pick the Scholar's Answer]->rogue_wrong2
+        * * * [Pick the Rogue's Answer]
+            You put in the Rogue's answer and get back another full moon.
+        ->your_riddle
+}
+
 =your_riddle
-->END
+You realize quickly that next riddle is about who you supported in claiming the artifact in your dream. This means you know the answer right away, but you are given the choice of whether or not to reveal the meaning to the group or keep it secret. 
+*[continue.]
+->cleric_riddle
+=cleric_riddle
+The next riddle is about betrayal, and the Cleric realizes immediately it is about him.
+If he is at LOW trust he will not reveal this to the group. If you have the blank tile from the first room, you can discover here that it can be used as a free "solved" riddle. If this route is chosen, the Rogue will eventually figure out the meaning of the riddle and reveal the story to the group at the start of ACT 2.
+If he is at MED trust he will say he knows the answer, but not reveal how. You can choose whether to allow this, or demand the truth. If you don't demand the truth, the Rogue does instead.
+If he is at HIGH trust he automatically reveals the full truth.
+If you get the full story, The Cleric reveals to the group that 1) He and the Rogue are brothers and 2) He is the reason that the Rogue was exiled, and nearly executed. 
+*[Continue.]->ranger_riddle
+=ranger_riddle
+The Ranger's riddle also reveals something dark about her past (she sacrificed a whole group of other Rangers trying to save the life of a loved one.) This plays out as a similar trust check to the Cleric's section (I don't know what makes it different yet).
+*[Continue.]->riddle_finale
+=riddle_finale
+The number of incorrect or unanswered riddles equals the number of injuries the group sustains trying to make it through the door. If it was discovered that the blank tile can be used as a wildcard, it can be used in place of an incorrect answer.
+->scholar_lesson
+
 
 ===scholar_lesson
-//Scholar learns to view others as equals
-//Scholar learns to view others as disposable pawns
+WIP: After getting through the door, there is a final conversation with the Scholar to wrap up this section. If you confronted her appropriately about how her feelings of superiority were hindering the group, she will start to view the rest of the group as equals moving forward. However, if you either enabled her too much, did not confront her, or were overly mean in confronting her, she will double down on feeling superior to the others, and be willing to use them as disposable pawns.
 ->END
 
 /****** ACT 2: The Brothers ******
